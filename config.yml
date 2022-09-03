@@ -1,0 +1,17 @@
+spira:
+  service_account_user: anthony.ennis@hmhs.com
+  proto: https
+  host: highmarkhealth.spiraservice.net
+  api-key: '{CF69015D-5208-4848-9E42-51CE9FA9CD7B}'
+  username: anthony.ennis@hmhs.com
+  service_instance: services/v6_0/RestService.svc
+digital:
+  host: xxx
+  key: xxx
+  bearer: xxx
+  service_instance: xxx
+mocks:
+  spira:
+    project:
+      - 10
+      - 20
