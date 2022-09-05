@@ -1,3 +1,7 @@
+import operator
+import pprint
+from collections import OrderedDict
+
 import requests
 import yaml
 
@@ -5,12 +9,14 @@ import yaml
 ai_test_storyId = ""
 ai_test_title = ""
 ai_test_description = ""
+ai_test_status = ""
+ai_test_owners = ""
 
 sp_project_data = []
 sp_project_req_data = []
 sp_project_testcase_data = []
 sp_project_teststep_data = []
-sp_project_testrun_data = []
+sp_project_testrun_data= {}
 
 sp_lifecycle_mgt = {
     0: {
@@ -44,6 +50,9 @@ payload_ai_test_create_template = """<?xml version="1.0" encoding="UTF-8"?>
     <Relation name="Parent" act="set">
        <Asset href="/HMHealthSolutions/rest-1.v1/Data/Story/""" + ai_test_storyId + """" idref="Story:""" + ai_test_storyId + """" />
     </Relation>
+  	<Relation name="Status" act="set">
+		<Asset idref="TestStatus:""" + ai_test_status + """" />
+	</Relation>
 </Asset>
 """
 
@@ -70,7 +79,7 @@ def action(url, verb, headers, payload, params):
     return response, response.json()
 
 
-def ai_create_storylevel_testcase(storyId, title, description):
+def ai_create_storylevel_testcase(storyId, title, description, status, owner=""):
     payload_ai_test_create_template = """<?xml version="1.0" encoding="UTF-8"?>
     <Asset href="/HMHealthSolutions/rest-1.v1/New/Test">
         <Attribute name="Name" act="set">""" + title + """</Attribute>
@@ -79,6 +88,9 @@ def ai_create_storylevel_testcase(storyId, title, description):
     <!-- Newly created Story -->
         <Relation name="Parent" act="set">
            <Asset href="/HMHealthSolutions/rest-1.v1/Data/Story/""" + storyId + """" idref="Story:""" + storyId + """" />
+        </Relation>
+        <Relation name="Status" act="set">
+            <Asset idref="TestStatus:""" + status + """" />
         </Relation>
     </Asset>
     """
@@ -252,43 +264,77 @@ for rt in sp_project_testcase_data:
 # Get all runs for testcase e
 ######################
 
-print("\nProject Test Case/Set Runs: ")
+print("\n\n\nProject Test Case/Set Runs: ")
 print("Input: Project Data = ", len(sp_project_data))
-# https://highmarkhealth.spiraservice.net/Services/v6_0/RestService.svc/projects/23/test-cases/1169/test-steps
+# https://highmarkhealth.spiraservice.net/Services/v6_0/RestService.svc/projects/23/test-cases/1169/test-runs
 for rt in sp_project_data:
     print("INF: ProjectId: ", str(rt["id"]))
     print("INF: Project Name: ", str(rt["name"]))
     url = base_url + "/projects/" + str(rt["id"]) + "/test-runs"
     response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
 
+    # LIST - test runs in the project
     for item in result:
-        print("INF: TestRunId: ", str(item["TestRunId"]))
         print("INF: TestCaseId: ", str(item["TestCaseId"]))
-        print("INF: ArtifactTypeId: ", str(item["ArtifactTypeId"]))
+        print("\nINF: TestRunId: ", str(item["TestRunId"]))
+        # print("INF: ArtifactTypeId: ", str(item["ArtifactTypeId"]))
 
-        # Criteria
-        # Passed / Failed
-        # Reference story Id from Testcase Loop
-        ai_test_storyId = "8247"
-        ai_test_title = "CPT Test, SP Identifier (" + str(ai_test_storyId) + ":" + str(item["TestCaseId"]) + ":" + str(item["TestRunId"]) + ")"
-        ai_test_description = "Prog Main Test Desc"
-        ai_create_storylevel_testcase(ai_test_storyId, ai_test_title, ai_test_description)
+        # Map List entries to Dictionary Structure
+        x = sp_project_testrun_data.get(item["TestCaseId"])
+        if sp_project_testrun_data.get(item["TestCaseId"]) == None:
+            sp_project_testrun_data[item["TestCaseId"]] = {}
+            sp_project_testrun_data[item["TestCaseId"]].update({item["TestRunId"]:{}})
+        else:
+            sp_project_testrun_data[item["TestCaseId"]][item["TestRunId"]].update({
+                "projectId": item["ProjectId"],
+                "artifactTypeId": item["ArtifactTypeId"],
+                "releaseId": item["ReleaseId"],
+                # TestRunTypeId	The id of the type of test run (automated vs. manual)
+                "testRunTypeId": item["TestRunTypeId"],
+                # Failed = 1; Passed = 2; NotRun = 3; NotApplicable = 4; Blocked = 5; Caution = 6;
+                "executionStatusId": item["ExecutionStatusId"],
 
-        sp_project_testrun_data.append({
-            "id": item["TestRunId"],
-            "testCaseId": item["TestCaseId"],
-            "projectId": item["ProjectId"],
-            "artifactTypeId": item["ArtifactTypeId"],
-            "releaseId": item["ReleaseId"],
-            "executionStatusId": item["ExecutionStatusId"],
+                # "endDate": item["EndDate"],
 
-            "endDate": item["EndDate"],
+                # "tags": item["Tags"],
 
-            "tags": item["Tags"],
+                # The list of associated custom properties/fields for this artifact
+                # "customProperties": item["CustomProperties"]
+            })
 
-            "customProperties": item["CustomProperties"]
-        })
-# print(sp_project_testrun_data)
+
+    ######################
+    # Test Case Runs
+    # Get all runs for testcase e
+    ######################
+    sorted(result, key=lambda tr: tr['TestCaseId'])
+    latest_testrunId = list(sp_project_testrun_data.keys())[-1]
+    pprint.pprint(sp_project_testrun_data[latest_testrunId])
+
+    # Test Case Builder
+    # Criteria
+    # Passed / Failed
+    # Reference story Id from Testcase Loop
+    ai_test_storyId = "8247"
+    ai_test_description = "Prog Main Test Desc"
+    ai_test_status = "155"
+    ai_test_owners = ""
+    ai_test_title = "CPT Test, SP Identifier (" + str(ai_test_storyId) + ":" + str(item["TestCaseId"]) + ":" + str(
+        latest_testrunId) + ":" + str(item["ExecutionStatusId"]) + ")"
+
+    # Logic - Execution Status
+    if item["ExecutionStatusId"] == "1":
+        ai_test_status = "155"
+    else:
+        ai_test_status = "129"
+
+    # Logic - Manual / Automated
+    # Logic - Update / Create
+
+    # ai_create_storylevel_testcase(storyId=ai_test_storyId, title=ai_test_title, description=ai_test_description,
+    #                               status=ai_test_status, owner=ai_test_owners)
+
+pprint.pprint(sp_project_testrun_data)
 
 ######################
 # AI Test case Management
