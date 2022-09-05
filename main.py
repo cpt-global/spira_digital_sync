@@ -16,7 +16,7 @@ sp_project_data = []
 sp_project_req_data = []
 sp_project_testcase_data = []
 sp_project_teststep_data = []
-sp_project_testrun_data= {}
+sp_project_testrun_data = {}
 
 sp_lifecycle_mgt = {
     0: {
@@ -283,9 +283,7 @@ for rt in sp_project_data:
         x = sp_project_testrun_data.get(item["TestCaseId"])
         if sp_project_testrun_data.get(item["TestCaseId"]) == None:
             sp_project_testrun_data[item["TestCaseId"]] = {}
-            sp_project_testrun_data[item["TestCaseId"]].update({item["TestRunId"]:{}})
-        else:
-            sp_project_testrun_data[item["TestCaseId"]][item["TestRunId"]].update({
+            sp_project_testrun_data[item["TestCaseId"]].update({item["TestRunId"]: {
                 "projectId": item["ProjectId"],
                 "artifactTypeId": item["ArtifactTypeId"],
                 "releaseId": item["ReleaseId"],
@@ -300,46 +298,64 @@ for rt in sp_project_data:
 
                 # The list of associated custom properties/fields for this artifact
                 # "customProperties": item["CustomProperties"]
-            })
+            }})
+        else:
+            sp_project_testrun_data[item["TestCaseId"]].update({item["TestRunId"]: {
+                "projectId": item["ProjectId"],
+                "artifactTypeId": item["ArtifactTypeId"],
+                "releaseId": item["ReleaseId"],
+                # TestRunTypeId	The id of the type of test run (automated vs. manual)
+                "testRunTypeId": item["TestRunTypeId"],
+                # Failed = 1; Passed = 2; NotRun = 3; NotApplicable = 4; Blocked = 5; Caution = 6;
+                "executionStatusId": item["ExecutionStatusId"],
 
+                # "endDate": item["EndDate"],
 
-    ######################
-    # Test Case Runs
-    # Get all runs for testcase e
-    ######################
-    sorted(result, key=lambda tr: tr['TestCaseId'])
-    latest_testrunId = list(sp_project_testrun_data.keys())[-1]
-    pprint.pprint(sp_project_testrun_data[latest_testrunId])
+                # "tags": item["Tags"],
 
-    # Test Case Builder
-    # Criteria
-    # Passed / Failed
-    # Reference story Id from Testcase Loop
-    ai_test_storyId = "8247"
-    ai_test_description = "Prog Main Test Desc"
-    ai_test_status = "155"
-    ai_test_owners = ""
-    ai_test_title = "CPT Test, SP Identifier (" + str(ai_test_storyId) + ":" + str(item["TestCaseId"]) + ":" + str(
-        latest_testrunId) + ":" + str(item["ExecutionStatusId"]) + ")"
+                # The list of associated custom properties/fields for this artifact
+                # "customProperties": item["CustomProperties"]
+            }})
 
-    # Logic - Execution Status
-    if item["ExecutionStatusId"] == "1":
-        ai_test_status = "155"
-    else:
-        ai_test_status = "129"
-
-    # Logic - Manual / Automated
-    # Logic - Update / Create
-
-    # ai_create_storylevel_testcase(storyId=ai_test_storyId, title=ai_test_title, description=ai_test_description,
-    #                               status=ai_test_status, owner=ai_test_owners)
-
+######################
+# Test Case Runs
+# Get all runs for testcase e
+######################
+# sorted(result, key=lambda tr: tr['TestCaseId'])
+# latest_testrunId = list(sp_project_testrun_data.keys())[-1]
+# pprint.pprint(sp_project_testrun_data[latest_testrunId])
 pprint.pprint(sp_project_testrun_data)
 
-######################
-# AI Test case Management
-# Create TC For Story
-######################
+# Test Case Builder
+# Criteria
+# Passed / Failed
+# Reference story Id from Testcase Loop
+for tr_id in sp_project_testrun_data:
+    tr_data = sp_project_testrun_data[tr_id]
+    for tr_id in tr_data:
+        # Update is create?
+        # Logic - Update / Create
+        ai_project = sp_project_testrun_data[tr_id][tr_id]["projectId"]
+        ai_release = sp_project_testrun_data[tr_id][tr_id]["releaseId"]
+        testRunTypeId = sp_project_testrun_data[tr_id][tr_id]["testRunTypeId"]
 
+        ai_test_storyId = "8247"
+        ai_test_description = "Prog Main Test Desc"
+        ai_test_owners = ""
+        latest_testrunId = tr_id
+        ai_test_title = "CPT Test, SP Identifier (" + str(ai_test_storyId) + ":" + str(item["TestCaseId"]) + ":" + str(
+            latest_testrunId) + ":" + str(item["ExecutionStatusId"]) + ")"
 
-exit("End Of Sync")
+        # Logic - Execution Status
+        # Failed = 1; Passed = 2; NotRun = 3; NotApplicable = 4; Blocked = 5; Caution = 6;
+        if item["ExecutionStatusId"] == "1":
+            ai_test_status = "155"
+        else:
+            ai_test_status = "129"
+
+        # Logic - Manual / Automated
+
+        # ai_create_storylevel_testcase(storyId=ai_test_storyId, title=ai_test_title, description=ai_test_description,
+        #                               status=ai_test_status, owner=ai_test_owners)
+
+        exit("End Of Sync")
