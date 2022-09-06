@@ -1,3 +1,7 @@
+# Infra
+- NoSeq DB 
+- Move from Public Agility to enGen
+
 # Operations
 Update Test 
 query testcase for storyId
@@ -22,13 +26,14 @@ Start/End Times
 # Associations
 # Customizations
 - testcase
-* storyId
+* storyId custom field
  
 # KT 
 - walk through of aggreed flow....
 - testcase sequencia or random
 # Product
 - Test runs per testcase or just project level
+- Test run ID does last ID have largest value in the set of numbers.
 
 # Workspace
 - Python environment

@@ -1,12 +1,13 @@
 import operator
 import pprint
 from collections import OrderedDict
+from datetime import datetime
 
 import requests
 import yaml
 
 # Globals
-ai_test_storyId = ""
+ai_test_storyId = "8247"
 ai_test_title = ""
 ai_test_description = ""
 ai_test_status = ""
@@ -107,6 +108,50 @@ def ai_create_storylevel_testcase(storyId, title, description, status, owner="")
     print("INF: ai_testcaseMomentId: ", testcaseMomentId)
 
     return {"testcaseId": testcaseId, "testcaseMomentId": testcaseMomentId, "storyId": storyId}
+
+
+# Test Case Builder
+# Criteria
+# Passed / Failed
+# Reference story Id from Testcase Loop
+def testcase_builder(ai_project, ai_release, testRunTypeId, story_id, tc_id, tr_id, test_status):
+    # Update is create?
+    # Logic - Update / Create
+
+    project_id = ai_project
+    release_id = ai_release
+    tr_id = testRunTypeId
+    ai_timestamp = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    ai_test_storyId = story_id
+    ai_test_description = "Prog Main Test Desc"
+    ai_test_owners = ""
+    latest_testrunId = tr_id
+    ai_test_title = "CPT Test -" + ai_timestamp + \
+                    " SP Source (" + str(ai_test_storyId) + \
+                    ":" + \
+                    str(tc_id) + \
+                    ":" + \
+                    str(latest_testrunId) + \
+                    ":" + \
+                    str(test_status) + \
+                    ")"
+
+    # Logic - Execution Status
+    # Failed = 1; Passed = 2; NotRun = 3; NotApplicable = 4; Blocked = 5; Caution = 6;
+    if test_status == 1:
+        ai_test_status = "155"
+    else:
+        ai_test_status = "129"
+
+    # Logic - Manual / Automated
+
+    ai_create_storylevel_testcase(
+        storyId=ai_test_storyId,
+        title=ai_test_title,
+        description=ai_test_description,
+        status=ai_test_status,
+        owner=ai_test_owners
+    )
 
 
 # Init Project
@@ -317,45 +362,38 @@ for rt in sp_project_data:
                 # "customProperties": item["CustomProperties"]
             }})
 
-######################
-# Test Case Runs
-# Get all runs for testcase e
-######################
-# sorted(result, key=lambda tr: tr['TestCaseId'])
-# latest_testrunId = list(sp_project_testrun_data.keys())[-1]
-# pprint.pprint(sp_project_testrun_data[latest_testrunId])
 pprint.pprint(sp_project_testrun_data)
 
-# Test Case Builder
-# Criteria
-# Passed / Failed
-# Reference story Id from Testcase Loop
-for tr_id in sp_project_testrun_data:
-    tr_data = sp_project_testrun_data[tr_id]
-    for tr_id in tr_data:
-        # Update is create?
-        # Logic - Update / Create
-        ai_project = sp_project_testrun_data[tr_id][tr_id]["projectId"]
-        ai_release = sp_project_testrun_data[tr_id][tr_id]["releaseId"]
-        testRunTypeId = sp_project_testrun_data[tr_id][tr_id]["testRunTypeId"]
 
-        ai_test_storyId = "8247"
-        ai_test_description = "Prog Main Test Desc"
-        ai_test_owners = ""
-        latest_testrunId = tr_id
-        ai_test_title = "CPT Test, SP Identifier (" + str(ai_test_storyId) + ":" + str(item["TestCaseId"]) + ":" + str(
-            latest_testrunId) + ":" + str(item["ExecutionStatusId"]) + ")"
+######################
+# Post Processing - Test Case Runs
+# Get The Latest Test Run/TestCase and Update Agility
+######################
+print("\n\nINF: Starting Test Execution Analysis")
+for tc_id in sp_project_testrun_data:
+    tr_dic = sp_project_testrun_data[tc_id]
+    tr_ids = list(tr_dic)
+    tr_id_size = len(tr_ids)
+    print("\nINF: Test Case Id (", tc_id, ")")
+    print("INF: Test Run Size (", tr_id_size, ")")
 
-        # Logic - Execution Status
-        # Failed = 1; Passed = 2; NotRun = 3; NotApplicable = 4; Blocked = 5; Caution = 6;
-        if item["ExecutionStatusId"] == "1":
-            ai_test_status = "155"
-        else:
-            ai_test_status = "129"
+    # Algorithm - Latest Test Run
+    tr_id_earliest = sorted(list(tr_dic))[0]
+    print("INF: Test Run Earliest (", tr_id_earliest, ")")
+    tr_id_latest = sorted(list(tr_dic))[len(tr_ids) - 1]
+    print("INF: Test Run Latest (", tr_id_latest, ")")
 
-        # Logic - Manual / Automated
+    # Attributes - Status, Project and Release Id, RunType!
+    test_status = sp_project_testrun_data[tc_id][tr_id_latest]["executionStatusId"]
+    ai_project = sp_project_testrun_data[tc_id][tr_id_latest]["projectId"]
+    ai_release = sp_project_testrun_data[tc_id][tr_id_latest]["releaseId"]
+    testRunTypeId = sp_project_testrun_data[tc_id][tr_id_latest]["testRunTypeId"]
 
-        # ai_create_storylevel_testcase(storyId=ai_test_storyId, title=ai_test_title, description=ai_test_description,
-        #                               status=ai_test_status, owner=ai_test_owners)
+    # Logic - Create/Update Testcase
+    if tr_id_size == 1:
+        mode="create"
+    else:
+        mode="update"
+    testcase_builder(mode, ai_project, ai_release, testRunTypeId, ai_test_storyId, tc_id, tr_id_latest, test_status)
 
-        exit("End Of Sync")
+exit("End Of Sync")
