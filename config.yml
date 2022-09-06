@@ -6,10 +6,10 @@ spira:
   username: anthony.ennis@hmhs.com
   service_instance: services/v6_0/RestService.svc
 digital:
-  host: xxx
-  key: xxx
-  bearer: xxx
-  service_instance: xxx
+  proto: https
+  host: www16.v1host.com
+  bearer: 'Bearer 1.VvzUpAo8PbdPEcbb2ol96VpcvfI='
+  service_instance: api-examples
 mocks:
   spira:
     project:

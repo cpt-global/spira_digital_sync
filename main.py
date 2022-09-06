@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import requests
 import yaml
 
@@ -126,8 +128,8 @@ for item in result:
         "name": item["Name"]
     })
 
-rt_mode = "test"
-if rt_mode == "test":
+rt_mode = "sandbox"
+if rt_mode == "sandbox":
     sp_project_data = [{
         "id": 28,
         "name": "Sandbox - Claims Unit and Integration"
@@ -269,8 +271,10 @@ for rt in sp_project_data:
         # Criteria
         # Passed / Failed
         # Reference story Id from Testcase Loop
+        ai_timestamp = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+        # ai_timestamp = datetime.today().strftime('%H:%M:%S')
         ai_test_storyId = "8247"
-        ai_test_title = "CPT Test, SP Identifier (" + str(ai_test_storyId) + ":" + str(item["TestCaseId"]) + ":" + str(item["TestRunId"]) + ")"
+        ai_test_title = ai_timestamp + " - CPT Test : SP (" + str(ai_test_storyId) + ":" + str(item["TestCaseId"]) + ":" + str(item["TestRunId"]) + ")"
         ai_test_description = "Prog Main Test Desc"
         ai_create_storylevel_testcase(ai_test_storyId, ai_test_title, ai_test_description)
 
