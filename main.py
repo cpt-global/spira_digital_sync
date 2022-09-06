@@ -5,6 +5,7 @@ from datetime import datetime
 
 import requests
 import yaml
+import json
 
 # Globals
 ai_test_storyId = "8247"
@@ -12,6 +13,7 @@ ai_test_title = ""
 ai_test_description = ""
 ai_test_status = ""
 ai_test_owners = ""
+ai_test_owner_id = ""
 
 sp_project_data = []
 sp_project_req_data = []
@@ -42,20 +44,16 @@ headers_ai = {
     'Content-Type': 'application/xml'
 }
 
-payload_ai_test_create_template = """<?xml version="1.0" encoding="UTF-8"?>
-<Asset href="/HMHealthSolutions/rest-1.v1/New/Test">
-	<Attribute name="Name" act="set">""" + ai_test_title + """</Attribute>
-	<Attribute name="Description" act="set">""" + ai_test_description + """</Attribute>
-    
-<!-- Newly created Story -->
-    <Relation name="Parent" act="set">
-       <Asset href="/HMHealthSolutions/rest-1.v1/Data/Story/""" + ai_test_storyId + """" idref="Story:""" + ai_test_storyId + """" />
-    </Relation>
-  	<Relation name="Status" act="set">
-		<Asset idref="TestStatus:""" + ai_test_status + """" />
-	</Relation>
-</Asset>
-"""
+
+def write_down(dic, project_id):
+    json.dump(dic, open(project_id + "_" + "testcases_created.json", 'w'))
+
+def lookup(project_id):
+    # {
+    #    "tcid_sp": "tcid_ai"
+    # }
+    dic = json.load(open(project_id + "_" + "testcases_created.json"))
+    return dic
 
 
 def load_config():
@@ -97,8 +95,13 @@ def ai_create_storylevel_testcase(storyId, title, description, status, owner="")
     """
     base_url_ai = "https://www16.v1host.com/api-examples/rest-1.v1"
     url_ai = base_url_ai + "/Data/Test"
-    response_ai, result_ai = action(url_ai, verb="POST", headers=headers_ai, payload=payload_ai_test_create_template,
-                                    params={})
+    response_ai, result_ai = action(
+        url_ai,
+        verb="POST",
+        headers=headers_ai,
+        payload=payload_ai_test_create_template,
+        params={}
+    )
 
     testcaseId = result_ai["id"].split(":")[1]
     testcaseMomentId = result_ai["id"].split(":")[2]
@@ -110,21 +113,43 @@ def ai_create_storylevel_testcase(storyId, title, description, status, owner="")
     return {"testcaseId": testcaseId, "testcaseMomentId": testcaseMomentId, "storyId": storyId}
 
 
+def ai_update_storylevel_testcase(storyId, tc_id, title, description, status, owner=""):
+    payload_ai_test_update_template = """<Asset>
+    <Attribute name="Description" act="set">Modified Desciption V2</Attribute>
+    </Asset>
+    """
+    pprint.pprint(payload_ai_test_update_template)
+    base_url_ai = "https://www16.v1host.com/api-examples/rest-1.v1"
+    url_ai = base_url_ai + "/Data/Test/" + str(tc_id)
+    response_ai, result_ai = action(
+        url_ai,
+        verb="POST",
+        headers=headers_ai,
+        payload=payload_ai_test_update_template,
+        params={}
+    )
+
+    testcaseId = result_ai["id"].split(":")[1]
+    testcaseMomentId = result_ai["id"].split(":")[2]
+    print("INF: ai_testcaseId: ", testcaseId)
+    print("INF: ai_testcaseMomentId: ", testcaseMomentId)
+
+    return {"testcaseId": testcaseId, "testcaseMomentId": testcaseMomentId}
+
+
 # Test Case Builder
 # Criteria
 # Passed / Failed
 # Reference story Id from Testcase Loop
-def testcase_builder(ai_project, ai_release, testRunTypeId, story_id, tc_id, tr_id, test_status):
-    # Update is create?
-    # Logic - Update / Create
-
+def testcase_builder(mode, ai_project, ai_release, testRunTypeId, story_id, tc_id, tr_id, test_status):
     project_id = ai_project
     release_id = ai_release
-    tr_id = testRunTypeId
+    testrun_type_id = testRunTypeId
+
     ai_timestamp = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
     ai_test_storyId = story_id
     ai_test_description = "Prog Main Test Desc"
-    ai_test_owners = ""
+    ai_test_owners = "80027"
     latest_testrunId = tr_id
     ai_test_title = "CPT Test -" + ai_timestamp + \
                     " SP Source (" + str(ai_test_storyId) + \
@@ -144,15 +169,23 @@ def testcase_builder(ai_project, ai_release, testRunTypeId, story_id, tc_id, tr_
         ai_test_status = "129"
 
     # Logic - Manual / Automated
-
-    ai_create_storylevel_testcase(
-        storyId=ai_test_storyId,
-        title=ai_test_title,
-        description=ai_test_description,
-        status=ai_test_status,
-        owner=ai_test_owners
-    )
-
+    if mode == "create":
+        testcaseId, testcaseMomentId, storyId = ai_create_storylevel_testcase(
+            storyId=ai_test_storyId,
+            title=ai_test_title,
+            description=ai_test_description,
+            status=ai_test_status,
+            owner=ai_test_owners)
+        return {"testcaseId": testcaseId, "testcaseMomentId": testcaseMomentId, "storyId": storyId}
+    else:
+        testcaseId, testcaseMomentId  = ai_update_storylevel_testcase(
+            storyId=ai_test_storyId,
+            tc_id=8293,
+            title=ai_test_title,
+            description=ai_test_description,
+            status=ai_test_status,
+            owner=ai_test_owners)
+        return {"testcaseId": testcaseId, "testcaseMomentId": testcaseMomentId, "storyId": ""}
 
 # Init Project
 cfg = load_config()
@@ -364,7 +397,6 @@ for rt in sp_project_data:
 
 pprint.pprint(sp_project_testrun_data)
 
-
 ######################
 # Post Processing - Test Case Runs
 # Get The Latest Test Run/TestCase and Update Agility
@@ -391,9 +423,12 @@ for tc_id in sp_project_testrun_data:
 
     # Logic - Create/Update Testcase
     if tr_id_size == 1:
-        mode="create"
+        mode = "create"
+        ai_tc_id, ai_tc_moment_id, ai_story_id = testcase_builder(mode, ai_project, ai_release, testRunTypeId, ai_test_storyId, tc_id, tr_id_latest, test_status)
+        write_down({tc_id: ai_tc_id})
     else:
-        mode="update"
-    testcase_builder(mode, ai_project, ai_release, testRunTypeId, ai_test_storyId, tc_id, tr_id_latest, test_status)
+        mode = "update"
+        lookup(tc_id)
+        testcase_builder(mode, ai_project, ai_release, testRunTypeId, ai_test_storyId, tc_id, tr_id_latest, test_status)
 
 exit("End Of Sync")
