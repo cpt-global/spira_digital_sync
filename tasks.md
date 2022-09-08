@@ -1,3 +1,13 @@
+# Concern
+Assumption: Starting from a fresh slate!
+remove all test runs!
+Data already exists in SP that doesnt exist in Agility. These testcases have history! 
+
+# Inflectra Email
+ID of Plugin!!!
+Programatic links..
+
+
 # Infra
 - NoSeq DB 
 - Move from Public Agility to enGen

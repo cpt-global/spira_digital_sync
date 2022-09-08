@@ -5,11 +5,27 @@ spira:
   api-key: '{CF69015D-5208-4848-9E42-51CE9FA9CD7B}'
   username: anthony.ennis@hmhs.com
   service_instance: services/v6_0/RestService.svc
+  artifact_ids:
+    test: 2
+  custom_field_mappings:
+    story_id: 6
+    req_id: 7
+  runtime:
+    stop_on_error: True
+    logging: True
+  scope:
+    project_scope: [28]
+    requirement_type: "User Story"
+    test_type: "manual"
 digital:
   proto: https
   host: www16.v1host.com
   bearer: 'Bearer 1.VvzUpAo8PbdPEcbb2ol96VpcvfI='
   service_instance: api-examples
+  test:
+    status:
+      passId: 155
+      failId: 129
 mocks:
   spira:
     project:
