@@ -120,7 +120,7 @@ def action(url, verb, headers, payload, params):
     return response, response.json()
 
 
-def ai_create_storylevel_testcase(storyId, title, description, status):
+def ai_create_storylevel_testcase(storyId, title, description, status, owner=""):
     payload_ai_test_create_template = """<?xml version="1.0" encoding="UTF-8"?>
     <Asset href="/HMHealthSolutions/rest-1.v1/New/Test">
         <Attribute name="Name" act="set">""" + title + """</Attribute>
@@ -152,7 +152,7 @@ def ai_create_storylevel_testcase(storyId, title, description, status):
     print("INF: ai_testcaseId: ", testcaseId)
     print("INF: ai_testcaseMomentId: ", testcaseMomentId)
 
-    return {"testcaseId": testcaseId, "testcaseMomentId": testcaseMomentId}
+    return {"testcaseId": testcaseId, "testcaseMomentId": testcaseMomentId, "storyId": storyId}
 
 
 def ai_update_storylevel_testcase(tc_id, title, description, status, owner=""):
@@ -245,10 +245,10 @@ for item in result:
 
     print("INF: ProjectId Accepted: ", str(item["ProjectId"]))
 
-    # rt_model.update({item["ProjectId"]: {
-    #     "00_info": "!!!Project!!!",
-    #     "name": item["Name"]
-    # }})
+    rt_model.update({item["ProjectId"]: {
+        "00_info": "!!!Project!!!",
+        "name": item["Name"]
+    }})
     # print(sp_project_data)
     # pprint.pprint(rt_model)
 
@@ -267,7 +267,7 @@ for item in result:
 
         if item["RequirementTypeName"] == sp_scope_requirement_type:
             rt_model.update({
-                item["RequirementId"]: {
+                    item["RequirementId"] :{
                     "00_info": "!!!Requirement!!!",
                     # "id": item["RequirementId"],
                     "projectId": item["ProjectId"],
@@ -288,7 +288,7 @@ for item in result:
 
                     "authorName": item["AuthorName"],
                     "ownerName": item["OwnerName"]
-                }})
+            }})
         # pprint.pprint(rt_model)
     ######################
     # Project Test Cases
@@ -302,43 +302,37 @@ for item in result:
     for item in result:
         print("INF: TestCaseId: ", str(item["TestCaseId"]))
 
-
-
         ai_test_storyId = item["CustomProperties"][6]["StringValue"]
         ai_test_story_name = item["CustomProperties"][6]["Definition"]["Name"]
         ai_test_requirementId = item["CustomProperties"][7]["StringValue"]
         ai_test_requirement_name = item["CustomProperties"][7]["Definition"]["Name"]
 
-        # Create TestCase
-        ai_testcaseId, ai_testcaseMomentId = ai_create_storylevel_testcase(
-            storyId=ai_test_storyId,
-            title=item["Name"],
-            description=item["Description"],
-            # Default Failed/Empty
-            status=155
-            )
+        # rt_ai_model[item["ProjectId"]].update({
+        #     item["TestCaseId"]: {
+        #         "storyId": ai_test_storyId,
+        #         "requirementId": ai_test_requirementId
+        #     }
+        # })
 
-        # Add Agility TestCase Id To model for update report
         rt_model.update({
             item["TestCaseId"]: {
-                "00_info": "!!!Test Case!!!",
-                "testCaseId": item["TestCaseId"],
-                "testCaseId_Agility": ai_testcaseId,
-                "projectId": item["ProjectId"],
-                "statusId": item["TestCaseStatusId"],
-                "customProperties": item["CustomProperties"],
-                "storyId": ai_test_storyId,
-                "requirementId": ai_test_requirementId,
-                "artifactTypeId": item["ArtifactTypeId"],
+                    "00_info": "!!!Test Case!!!",
+                    "id": item["TestCaseId"],
+                    "projectId": item["ProjectId"],
+                    "statusId": item["TestCaseStatusId"],
+                    "customProperties": item["CustomProperties"],
+                    "storyId": ai_test_storyId,
+                    "requirementId": ai_test_requirementId,
+                    "artifactTypeId": item["ArtifactTypeId"],
 
-                "projectName": item["ProjectName"],
-                "name": item["Name"],
-                "description": item["Description"],
-                "tags": item["Tags"],
+                    "projectName": item["ProjectName"],
+                    "name": item["Name"],
+                    "description": item["Description"],
+                    "tags": item["Tags"],
 
-                "authorName": item["AuthorName"],
-                "ownerName": item["OwnerName"]
-            }})
+                    "authorName": item["AuthorName"],
+                    "ownerName": item["OwnerName"]
+                }})
         # pprint.pprint(rt_model)
 
         ######################
@@ -375,7 +369,7 @@ for item in result:
 
                     "customProperties": item["CustomProperties"]
                 }})
-        # pprint.pprint(rt_model)
+        pprint.pprint(rt_model)
 
     ######################
     # Test Case Runs
@@ -395,8 +389,7 @@ for item in result:
         rt_model.update({
             item["TestRunId"]: {
                 "00_info": "!!!Test Run!!!",
-                "testCaseId": item["TestCaseId"],
-                "testRunId": item["TestRunId"],
+                "TestCaseId": item["TestCaseId"],
                 "projectId": item["ProjectId"],
                 "artifactTypeId": item["ArtifactTypeId"],
                 "releaseId": item["ReleaseId"],
@@ -419,55 +412,103 @@ for item in result:
 print("\n\nINF: Starting Test Execution Analysis")
 NumberTypes = (int, float, complex)
 
-rt_ai_model = OrderedDict()
-for artifact_id in rt_model:
-    artifact_dic = rt_model.get(artifact_id)
+for rt_project_item in rt_model:
+    rt_project_dic = rt_model.get(rt_project_item)
 
-    if artifact_dic["artifactTypeId"] == 2:
-        tc_id = artifact_dic["testCaseId"]
-        storyId = rt_model[tc_id]["storyId"]
-        requirementId = rt_model[tc_id]["requirementId"]
-        rt_ai_model.update({
-            tc_id: {
-                "storyId": storyId,
-                "requirementId": requirementId,
-            }
-        })
-        print("TC ID ", tc_id)
-        print("Story ID ", storyId)
-        print("Req ID ", requirementId)
+    for rt_project_artifact_id in rt_project_dic:
 
-    # Is Test Run Artifact Type?
-    if artifact_dic["artifactTypeId"] == 5:
-        print("INF: TestRun Level Identified ")
-        ts = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-        tc_id = artifact_dic["testCaseId"]
 
-        tc_execution_status_id = artifact_dic["executionStatusId"]
-        tr_id = artifact_id
-        rt_ai_model[tc_id].update({
-            tr_id: {
-                "executionStatusId": tc_execution_status_id
-            }
-        })
+        # Just interested in artifact Ids
+        if isinstance(rt_project_artifact_id, NumberTypes):
+            rt_project_artifact_dic = rt_project_dic.get(rt_project_artifact_id)
+            tc_id = rt_project_artifact_id
 
-        # storyId = rt_model[tc_id]
-        print("TC Run and Status ID ", tr_id, "-", tc_execution_status_id)
+            # Is Testable Artifact Type?
+            if rt_project_artifact_dic["artifactTypeId"] == 2:
 
-    else:
-        print("INF: Not TestRun, if TC then create? ")
+                # Is Test Run
+                for rt_tc_artifact_entries in rt_project_artifact_dic:
+                        tr_id = rt_tc_artifact_entries
 
-#
-# RT Model Analysis For Agility Information
-#
-pprint.pprint(rt_ai_model)
-# pprint.pprint( list(rt_ai_model.items())[0])
-print("")
-for tcData,trData in list(rt_ai_model.items()):
-    # print(type(tcData))
-    # print(type(trData))
-    pprint.pprint(tcData)
-    # pprint.pprint(trData[tcData])
-    # for item in trData:
-    #     pprint.pprint(trData[item])
+                    # Just interested in artifact Ids
+                        if isinstance(rt_tc_artifact_entries, NumberTypes):
+                            # Is Id Test Run or Test Step?
+                            if rt_project_artifact_dic[rt_tc_artifact_entries]["artifactTypeId"] == 5:
+                                print("INF: TestRun Level Identified ", )
 
+                                # Explore Level!!!
+                                ts = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+
+                                tr_dic = sp_project_testrun_data[tc_id]
+                                tr_ids = list(tr_dic)
+                                tr_id_size = len(tr_ids)
+                                print("\nINF: Test Case Id (", tc_id, ")")
+                                print("INF: Test Run Size (", tr_id_size, ")")
+
+                                # Algorithm - Latest Test Run
+                                tr_id_earliest = sorted(list(tr_dic))[0]
+                                print("INF: Test Run Earliest (", tr_id_earliest, ")")
+                                tr_id_latest = sorted(list(tr_dic))[len(tr_ids) - 1]
+                                print("INF: Test Run Latest (", tr_id_latest, ")")
+
+                                # Attributes - Status, Project and Release Id, RunType!
+                                test_status = sp_project_testrun_data[tc_id][tr_id_latest]["executionStatusId"]
+                                projectId = sp_project_testrun_data[tc_id][tr_id_latest]["projectId"]
+                                ai_release = sp_project_testrun_data[tc_id][tr_id_latest]["releaseId"]
+                                testRunTypeId = sp_project_testrun_data[tc_id][tr_id_latest]["testRunTypeId"]
+
+                                # Build Debug Title
+                                title = " - CPT Test - "
+                                title += ts
+                                title += " SP (" + str(ai_test_storyId)
+                                title += ":" + str(tc_id) + ":" + str(tr_id_latest) + ":" + str(test_status) + ")"
+
+                                # Logic - Execution Status
+                                # Failed = 1; Passed = 2; NotRun = 3; NotApplicable = 4; Blocked = 5; Caution = 6;
+                                if test_status == 1:
+                                    ai_test_status = "155"
+                                else:
+                                    ai_test_status = "129"
+
+                                # Logic - Create/Update Testcase
+                                if tr_id_size == 1:
+                                    mode = "create"
+                                    title += mode
+                                    # Compose TC Attributes
+                                    ai_test_description = "Prog Main Test Desc"
+                                    ai_test_owners = "80027"
+
+                                    # Lookup Story Id for Testcase
+                                    ai_test_storyId = story_id
+                                    url = base_url + "/projects/26/test-cases"
+                                    response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
+
+                                    # Lookup Logic
+                                    # - Load existing if any
+                                    # - add new entry to log
+                                    # - refresh log with new entry
+                                    lookup_dic = lookup(projectId, tc_id)
+                                    lookup_dic.update({tc_id: {"ai_tc_id": 8288, "ai_tc_title": "xxxx", "state": False}})
+                                    write_down(projectId, lookup_dic)
+
+                                    testcaseId, testcaseMomentId, storyId = ai_create_storylevel_testcase(
+                                        storyId=ai_test_storyId,
+                                        title=title,
+                                        description=ai_test_description,
+                                        status=ai_test_status,
+                                        owner=ai_test_owners)
+                                else:
+                                    mode = "update"
+                                    title += mode
+                                    # Lookup Logic
+                                    # Retrieve _existing_ SP/A pairing
+                                    lookup_ai_tc_id = lookup(projectId, tc_id)
+
+                                    testcaseId, testcaseMomentId, storyId = ai_create_storylevel_testcase(
+                                        storyId=ai_test_storyId,
+                                        title=title,
+                                        description=ai_test_description,
+                                        status=ai_test_status,
+                                        owner=ai_test_owners)
+
+exit("End Of Sync")
