@@ -10,7 +10,6 @@ import yaml
 import json
 
 # Globals
-ai_test_storyId = "8247"
 ai_test_title = ""
 ai_test_description = ""
 ai_test_status = ""

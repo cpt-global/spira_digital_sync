@@ -1,3 +1,4 @@
+import collections
 import operator
 import pprint
 import types
@@ -45,6 +46,164 @@ headers_ai = {
     'Accept': 'application/json',
     'Content-Type': 'application/xml'
 }
+
+
+def sp_get_project_test_runs(model, project_id):
+    print("\nProject Test Case/Set Runs: ")
+    url = base_url + "/projects/" + str(project_id) + "/test-runs"
+    response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
+
+    # LIST - test runs in the project
+    for item in result:
+        print("INF: TestCaseId: ", str(item["TestCaseId"]))
+        print("INF: TestRunId: ", str(item["TestRunId"]))
+
+        # Only Testcases that are valid (in the model already)
+        if model.get(item["TestCaseId"]) != None:
+            print("INF: Coupling Test Run ", item["TestRunId"], "With Valid Testcase ", item["TestCaseId"])
+
+            model.update({
+                item["TestRunId"]: {
+                    "00_info": "!!!Test Run!!!",
+                    "testCaseId": item["TestCaseId"],
+                    "testRunId": item["TestRunId"],
+                    "projectId": item["ProjectId"],
+                    "artifactTypeId": item["ArtifactTypeId"],
+                    "releaseId": item["ReleaseId"],
+                    # TestRunTypeId	The id of the type of test run (automated vs. manual)
+                    "testRunTypeId": item["TestRunTypeId"],
+                    # Failed = 1; Passed = 2; NotRun = 3; NotApplicable = 4; Blocked = 5; Caution = 6;
+                    "executionStatusId": item["ExecutionStatusId"],
+                    # "endDate": item["EndDate"],
+                    # "tags": item["Tags"],
+                    # The list of associated custom properties/fields for this artifact
+                    "customProperties": item["CustomProperties"]
+                }})
+
+    return model
+
+
+def sp_get_project_requirements(model, project_id):
+    print("\nProject Requirements: ")
+    print("Criteria: RequirementTypeName = UserStory")
+    url = base_url + "/projects/" + str(project_id) + "/requirements"
+    response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
+    for item in result:
+        print("INF: RequirementId: ", str(item["RequirementId"]))
+        # If Req Type User Story
+
+        if item["RequirementTypeName"] == sp_scope_requirement_type:
+            model.update({
+                item["RequirementId"]: {
+                    "00_info": "!!!Requirement!!!",
+                    # "id": item["RequirementId"],
+                    "projectId": item["ProjectId"],
+                    "statusId": item["StatusId"],
+                    "releaseId": item["ReleaseId"],
+                    "artifactTypeId": item["ArtifactTypeId"],
+
+                    "requirementTypeName": item["RequirementTypeName"],
+                    "projectName": item["ProjectName"],
+                    "name": item["Name"],
+                    "description": item["Description"],
+                    # Test Info / Not Integrity Info
+                    "coverageCountTotal": item["CoverageCountTotal"],
+                    "coverageCountPassed": item["CoverageCountPassed"],
+                    "CoverageCountFailed": item["CoverageCountFailed"],
+
+                    "tags": item["Tags"],
+
+                    "authorName": item["AuthorName"],
+                    "ownerName": item["OwnerName"]
+                }})
+
+    return model
+
+
+def sp_get_project_test_cases(model, project_id):
+    print("\nProject Test Cases: ")
+    print("Criteria: RequirementTypeName = UserStory")
+    url = base_url + "/projects/" + str(project_id) + "/test-cases"
+    response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
+
+    for item in result:
+        print("INF: TestCaseId: ", str(item["TestCaseId"]))
+
+        ai_test_storyId = item["CustomProperties"][6]["StringValue"]
+        ai_test_story_name = item["CustomProperties"][6]["Definition"]["Name"]
+        ai_test_requirementId = item["CustomProperties"][7]["StringValue"]
+        ai_test_requirement_name = item["CustomProperties"][7]["Definition"]["Name"]
+
+        if ai_test_storyId != None:
+            # Create TestCase
+            # ai_test_create_dic = ai_create_storylevel_testcase(
+            #     storyId=ai_test_storyId,
+            #     title=item["Name"],
+            #     description=item["Description"],
+            #     # Default Failed/Empty
+            #     status="155"
+            # )
+
+            # Add Agility TestCase Id To model for update report
+            model.update({
+                item["TestCaseId"]: {
+                    "00_info": "!!!Test Case!!!",
+                    "testCaseId": item["TestCaseId"],
+                    # "testCaseId_Agility": ai_test_create_dic["testcaseId"],
+                    "testCaseId_Agility": 8310,
+                    "projectId": item["ProjectId"],
+                    "statusId": item["TestCaseStatusId"],
+                    "customProperties": item["CustomProperties"],
+                    "storyId": ai_test_storyId,
+                    "requirementId": ai_test_requirementId,
+                    "artifactTypeId": item["ArtifactTypeId"],
+
+                    "projectName": item["ProjectName"],
+                    "name": item["Name"],
+                    "description": item["Description"],
+                    "tags": item["Tags"],
+
+                    "authorName": item["AuthorName"],
+                    "ownerName": item["OwnerName"]
+                }})
+            # pprint.pprint(rt_model)
+
+    # rt_model = sp_get_project_test_steps(rt_model, item["ProjectId"], item["TestCaseId"])
+
+    return model
+
+
+def sp_get_project_test_steps(model, project_id, tc_id):
+    print("\nProject Test Steps: ")
+    print("Input: TestCases = ", len(sp_project_testcase_data))
+    # https://highmarkhealth.spiraservice.net/Services/v6_0/RestService.svc/projects/23/test-cases/1169/test-steps
+    print("INF: TestcaseId: ", str(tc_id))
+    url = base_url + "/projects/" + str(project_id) + "/test-cases/" + str(tc_id) + "/test-steps"
+    response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
+
+    for item in result:
+        print("INF: TestStepId: ", str(item["TestStepId"]))
+        # rt_model[item["ProjectId"]][item["TestCaseId"]].update({
+        model.update({
+            item["TestStepId"]: {
+                "00_info": "!!!Test Step!!!",
+                "id": item["TestStepId"],
+                "testCaseId": item["TestCaseId"],
+                "projectId": item["ProjectId"],
+                "artifactTypeId": item["ArtifactTypeId"],
+                "executionStatusId": item["ExecutionStatusId"],
+
+                "description": item["Description"],
+                "expectedResult": item["ExpectedResult"],
+                "sampleData": item["SampleData"],
+                "position": item["Position"],
+
+                "tags": item["Tags"],
+
+                "customProperties": item["CustomProperties"]
+            }})
+    # pprint.pprint(rt_model)
+    return model
 
 
 def dump_model(project_id, dic):
@@ -155,9 +314,9 @@ def ai_create_storylevel_testcase(storyId, title, description, status):
     return {"testcaseId": testcaseId, "testcaseMomentId": testcaseMomentId}
 
 
-def ai_update_storylevel_testcase(tc_id, title, description, status, owner=""):
+def ai_update_storylevel_testcase(tc_id, status):
     payload_ai_test_update_template = """<Asset>
-    <Attribute name="Description" act="set">Modified Desciption V2</Attribute>
+    <Attribute name="Description" act="set">Modified Description V2</Attribute>
     </Asset>
     """
     pprint.pprint(payload_ai_test_update_template)
@@ -173,10 +332,10 @@ def ai_update_storylevel_testcase(tc_id, title, description, status, owner=""):
 
     testcaseId = result_ai["id"].split(":")[1]
     testcaseMomentId = result_ai["id"].split(":")[2]
-    print("INF: ai_testcaseId: ", testcaseId)
-    print("INF: ai_testcaseMomentId: ", testcaseMomentId)
+    # print("INF: ai_testcaseId: ", testcaseId)
+    # print("INF: ai_testcaseMomentId: ", testcaseMomentId)
 
-    return {"testcaseId": testcaseId, "testcaseMomentId": testcaseMomentId}
+    return {"momentId": testcaseMomentId}
 
 
 # Test Case Builder
@@ -245,170 +404,25 @@ for item in result:
 
     print("INF: ProjectId Accepted: ", str(item["ProjectId"]))
 
-    # rt_model.update({item["ProjectId"]: {
-    #     "00_info": "!!!Project!!!",
-    #     "name": item["Name"]
-    # }})
-    # print(sp_project_data)
-    # pprint.pprint(rt_model)
-
     ######################
     # Project Requirements
     # Contains Digital AI Story ID?
     ######################
+    rt_model = sp_get_project_requirements(rt_model, item["ProjectId"])
+    # pprint.pprint(rt_model)
 
-    print("\nProject Requirements: ")
-    print("Criteria: RequirementTypeName = UserStory")
-    url = base_url + "/projects/" + str(item["ProjectId"]) + "/requirements"
-    response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
-    for item in result:
-        print("INF: RequirementId: ", str(item["RequirementId"]))
-        # If Req Type User Story
-
-        if item["RequirementTypeName"] == sp_scope_requirement_type:
-            rt_model.update({
-                item["RequirementId"]: {
-                    "00_info": "!!!Requirement!!!",
-                    # "id": item["RequirementId"],
-                    "projectId": item["ProjectId"],
-                    "statusId": item["StatusId"],
-                    "releaseId": item["ReleaseId"],
-                    "artifactTypeId": item["ArtifactTypeId"],
-
-                    "requirementTypeName": item["RequirementTypeName"],
-                    "projectName": item["ProjectName"],
-                    "name": item["Name"],
-                    "description": item["Description"],
-                    # Test Info / Not Integrity Info
-                    "coverageCountTotal": item["CoverageCountTotal"],
-                    "coverageCountPassed": item["CoverageCountPassed"],
-                    "CoverageCountFailed": item["CoverageCountFailed"],
-
-                    "tags": item["Tags"],
-
-                    "authorName": item["AuthorName"],
-                    "ownerName": item["OwnerName"]
-                }})
-        # pprint.pprint(rt_model)
     ######################
     # Project Test Cases
     # Get all test for each project
     ######################
-    print("\nProject Test Cases: ")
-    print("Criteria: RequirementTypeName = UserStory")
-    url = base_url + "/projects/" + str(item["ProjectId"]) + "/test-cases"
-    response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
-
-    for item in result:
-        print("INF: TestCaseId: ", str(item["TestCaseId"]))
-
-
-
-        ai_test_storyId = item["CustomProperties"][6]["StringValue"]
-        ai_test_story_name = item["CustomProperties"][6]["Definition"]["Name"]
-        ai_test_requirementId = item["CustomProperties"][7]["StringValue"]
-        ai_test_requirement_name = item["CustomProperties"][7]["Definition"]["Name"]
-
-        # Create TestCase
-        ai_testcaseId, ai_testcaseMomentId = ai_create_storylevel_testcase(
-            storyId=ai_test_storyId,
-            title=item["Name"],
-            description=item["Description"],
-            # Default Failed/Empty
-            status=155
-            )
-
-        # Add Agility TestCase Id To model for update report
-        rt_model.update({
-            item["TestCaseId"]: {
-                "00_info": "!!!Test Case!!!",
-                "testCaseId": item["TestCaseId"],
-                "testCaseId_Agility": ai_testcaseId,
-                "projectId": item["ProjectId"],
-                "statusId": item["TestCaseStatusId"],
-                "customProperties": item["CustomProperties"],
-                "storyId": ai_test_storyId,
-                "requirementId": ai_test_requirementId,
-                "artifactTypeId": item["ArtifactTypeId"],
-
-                "projectName": item["ProjectName"],
-                "name": item["Name"],
-                "description": item["Description"],
-                "tags": item["Tags"],
-
-                "authorName": item["AuthorName"],
-                "ownerName": item["OwnerName"]
-            }})
-        # pprint.pprint(rt_model)
-
-        ######################
-        # Project Test Steps
-        # Get all test steps for each test case
-        ######################
-
-        print("\nProject Test Steps: ")
-        print("Input: TestCases = ", len(sp_project_testcase_data))
-        # https://highmarkhealth.spiraservice.net/Services/v6_0/RestService.svc/projects/23/test-cases/1169/test-steps
-        print("INF: TestcaseId: ", str(item["TestCaseId"]))
-        url = base_url + "/projects/" + str(item["ProjectId"]) + "/test-cases/" + str(
-            item["TestCaseId"]) + "/test-steps"
-        response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
-
-        for item in result:
-            print("INF: TestStepId: ", str(item["TestStepId"]))
-            # rt_model[item["ProjectId"]][item["TestCaseId"]].update({
-            rt_model.update({
-                item["TestStepId"]: {
-                    "00_info": "!!!Test Step!!!",
-                    "id": item["TestStepId"],
-                    "testCaseId": item["TestCaseId"],
-                    "projectId": item["ProjectId"],
-                    "artifactTypeId": item["ArtifactTypeId"],
-                    "executionStatusId": item["ExecutionStatusId"],
-
-                    "description": item["Description"],
-                    "expectedResult": item["ExpectedResult"],
-                    "sampleData": item["SampleData"],
-                    "position": item["Position"],
-
-                    "tags": item["Tags"],
-
-                    "customProperties": item["CustomProperties"]
-                }})
-        # pprint.pprint(rt_model)
+    rt_model = sp_get_project_test_cases(rt_model, item["ProjectId"])
+    # pprint.pprint(rt_model)
 
     ######################
     # Test Case Runs
     # Get all runs for testcase
     ######################
-
-    print("\nProject Test Case/Set Runs: ")
-    url = base_url + "/projects/" + str(item["ProjectId"]) + "/test-runs"
-    response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
-
-    # LIST - test runs in the project
-    for item in result:
-        print("INF: TestCaseId: ", str(item["TestCaseId"]))
-        print("INF: TestRunId: ", str(item["TestRunId"]))
-
-        # rt_model[item["ProjectId"]][item["TestCaseId"]].update({
-        rt_model.update({
-            item["TestRunId"]: {
-                "00_info": "!!!Test Run!!!",
-                "testCaseId": item["TestCaseId"],
-                "testRunId": item["TestRunId"],
-                "projectId": item["ProjectId"],
-                "artifactTypeId": item["ArtifactTypeId"],
-                "releaseId": item["ReleaseId"],
-                # TestRunTypeId	The id of the type of test run (automated vs. manual)
-                "testRunTypeId": item["TestRunTypeId"],
-                # Failed = 1; Passed = 2; NotRun = 3; NotApplicable = 4; Blocked = 5; Caution = 6;
-                "executionStatusId": item["ExecutionStatusId"],
-                # "endDate": item["EndDate"],
-                # "tags": item["Tags"],
-                # The list of associated custom properties/fields for this artifact
-                "customProperties": item["CustomProperties"]
-            }})
+    rt_model = sp_get_project_test_runs(rt_model, item["ProjectId"])
 
     dump_model(item["ProjectId"], rt_model)
 
@@ -423,13 +437,15 @@ rt_ai_model = OrderedDict()
 for artifact_id in rt_model:
     artifact_dic = rt_model.get(artifact_id)
 
-    if artifact_dic["artifactTypeId"] == 2:
+    if artifact_dic["artifactTypeId"] == cfg["spira"]["artifact_ids"]["test_case"]:
         tc_id = artifact_dic["testCaseId"]
+        tc_id_ai = rt_model[tc_id]["testCaseId_Agility"]
         storyId = rt_model[tc_id]["storyId"]
         requirementId = rt_model[tc_id]["requirementId"]
         rt_ai_model.update({
             tc_id: {
-                "storyId": storyId,
+                "storyId_ai": storyId,
+                "testcaseId_id": tc_id_ai,
                 "requirementId": requirementId,
             }
         })
@@ -438,7 +454,7 @@ for artifact_id in rt_model:
         print("Req ID ", requirementId)
 
     # Is Test Run Artifact Type?
-    if artifact_dic["artifactTypeId"] == 5:
+    if artifact_dic["artifactTypeId"] == cfg["spira"]["artifact_ids"]["test_run"]:
         print("INF: TestRun Level Identified ")
         ts = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
         tc_id = artifact_dic["testCaseId"]
@@ -463,11 +479,27 @@ for artifact_id in rt_model:
 pprint.pprint(rt_ai_model)
 # pprint.pprint( list(rt_ai_model.items())[0])
 print("")
-for tcData,trData in list(rt_ai_model.items()):
+print("INF: Number TestCase To Process ", len(list(rt_ai_model.items())))
+for tcId, tcDic in reversed(list(rt_ai_model.items())):
     # print(type(tcData))
     # print(type(trData))
-    pprint.pprint(tcData)
-    # pprint.pprint(trData[tcData])
-    # for item in trData:
-    #     pprint.pprint(trData[item])
+    # pprint.pprint(tcId)
+    # pprint.pprint(tcDic)
+    storyId_ai = tcDic.get("storyId_ai")
+    print("INF: Story Id", storyId_ai)
+    requirementId = tcDic.get("requirementId")
+    print("INF: Requirement Id", requirementId)
+    testcaseId_ai = tcDic.get("testcaseId_id")
+    print("INF: Test Id Agility", testcaseId_ai)
 
+    for item in collections.OrderedDict(reversed(list(tcDic.items()))):
+        # pprint.pprint(item)
+        if isinstance(item, NumberTypes):
+            # Found some test runs
+            tr_id = item
+            tr_exec_id = tcDic.get(item)["executionStatusId"]
+            print("INF: Test Run Id", tr_id, "Execution Status", tr_exec_id)
+            tc_moment_id = ai_update_storylevel_testcase(tc_id=tc_id_ai, status=tr_exec_id)["momentId"]
+            print("INF: Test Moment Id", tc_moment_id)
+
+            # if execution status is passed do we close story?
