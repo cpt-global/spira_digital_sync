@@ -5,6 +5,9 @@ spira:
   api-key: '{CF69015D-5208-4848-9E42-51CE9FA9CD7B}'
   username: anthony.ennis@hmhs.com
   service_instance: services/v6_0/RestService.svc
+  polling:
+    frequency: 10
+    continuous: False
   artifact_ids:
     test_case: 2
     test_run: 5
@@ -30,10 +33,14 @@ digital:
   host: www16.v1host.com
   bearer: 'Bearer 1.VvzUpAo8PbdPEcbb2ol96VpcvfI='
   service_instance: api-examples
+  story:
+    status:
+      not_started: 133
+      done: 135
   test:
     status:
-      passId: 155
-      failId: 129
+      passId: 129
+      failId: 155
 mocks:
   spira:
     project:

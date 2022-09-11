@@ -9,6 +9,8 @@ import requests
 import simplejson
 import yaml
 import json
+from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 # Globals
 ai_test_storyId = "8247"
@@ -129,45 +131,92 @@ def sp_get_project_test_cases(model, project_id):
     for item in result:
         print("INF: TestCaseId: ", str(item["TestCaseId"]))
 
-        ai_test_storyId = item["CustomProperties"][6]["StringValue"]
+        ai_storyId = item["CustomProperties"][6]["StringValue"]
         ai_test_story_name = item["CustomProperties"][6]["Definition"]["Name"]
         ai_test_requirementId = item["CustomProperties"][7]["StringValue"]
         ai_test_requirement_name = item["CustomProperties"][7]["Definition"]["Name"]
 
-        if ai_test_storyId != None:
-            # Create TestCase
-            # ai_test_create_dic = ai_create_storylevel_testcase(
-            #     storyId=ai_test_storyId,
-            #     title=item["Name"],
-            #     description=item["Description"],
-            #     # Default Failed/Empty
-            #     status="155"
-            # )
+        # Logic: Testcase StoryId mapping exists
+        if ai_storyId != None:
+            # Does SP Testcase have an agility TC?
+            response_agility_tc_id, response_dic = lookup(item["ProjectId"], item["TestCaseId"])
 
-            # Add Agility TestCase Id To model for update report
-            model.update({
-                item["TestCaseId"]: {
-                    "00_info": "!!!Test Case!!!",
-                    "testCaseId": item["TestCaseId"],
-                    # "testCaseId_Agility": ai_test_create_dic["testcaseId"],
-                    "testCaseId_Agility": 8310,
-                    "projectId": item["ProjectId"],
-                    "statusId": item["TestCaseStatusId"],
-                    "customProperties": item["CustomProperties"],
-                    "storyId": ai_test_storyId,
-                    "requirementId": ai_test_requirementId,
-                    "artifactTypeId": item["ArtifactTypeId"],
+            # Ok
+            # 1. create agility testcase
+            # - ref to TC
+            # - ref to Req?
+            # 2. update record log
+            # 3. update model for downstream processing
+            # Logic: Lookup table /
+            if response_agility_tc_id == None:
 
-                    "projectName": item["ProjectName"],
-                    "name": item["Name"],
-                    "description": item["Description"],
-                    "tags": item["Tags"],
+                # 1. create agility testcase with reference details
+                integrity_link_tc = "https://highmarkhealth.spiraservice.net/" + str(
+                    item["ProjectId"]) + "/TestCase/" + str(item["TestCaseId"]) + "/Overview.aspx"
+                item["Description"] += "&lt;br&gt;"
+                item["Description"] += "&lt;br&gt;"
+                item["Description"] += "&lt;strong&gt;"
+                item["Description"] += "Spira Plan Reference(s)"
+                item["Description"] += "&lt;strong&gt;"
+                item["Description"] += "&lt;br&gt;"
 
-                    "authorName": item["AuthorName"],
-                    "ownerName": item["OwnerName"]
-                }})
+                html_builder = "&lt;a"
+                html_builder += " href=\""
+                html_builder += integrity_link_tc
+                html_builder += "\""
+                html_builder += " target=\"_blank\""
+                html_builder += "&gt;"
+                html_builder += "Testcase Link: (" + item["Name"] + "...)"
+                html_builder += "&lt;"
+                html_builder += "/a"
+                html_builder += "&gt;"
+
+                item["Description"] += html_builder
+
+                item["Description"] += "&lt;br&gt;"
+
+                ai_tc_dic = ai_create_storylevel_testcase(
+                    storyId=ai_storyId,
+                    title=item["Name"],
+                    description=item["Description"]
+                )
+
+                # 2. update record json log!
+                response_dic.update({
+                    item["TestCaseId"]: {
+                        "ai_tc_id": int(ai_tc_dic["testcaseId"]),
+                        "ai_moment_id": int(ai_tc_dic["momentId"]),
+                        "ai_storyId": int(ai_storyId),
+                        "lc": 1}
+                })
+                write_down(item["ProjectId"], response_dic)
+
+                # 3. update model for downstream processing
+                model.update({
+                    item["TestCaseId"]: {
+                        "00_info": "!!!Test Case!!!",
+                        "testCaseId": item["TestCaseId"],
+                        "testCaseId_Agility": ai_tc_dic["testcaseId"],
+                        "momentId_Agility": ai_tc_dic["momentId"],
+                        # "testCaseId_Agility": 8310,
+                        "projectId": item["ProjectId"],
+                        "statusId": item["TestCaseStatusId"],
+                        "customProperties": item["CustomProperties"],
+                        "storyId": ai_storyId,
+                        "requirementId": ai_test_requirementId,
+                        "artifactTypeId": item["ArtifactTypeId"],
+
+                        "projectName": item["ProjectName"],
+                        "name": item["Name"],
+                        "description": item["Description"],
+                        "tags": item["Tags"],
+
+                        "authorName": item["AuthorName"],
+                        "ownerName": item["OwnerName"]
+                    }})
             # pprint.pprint(rt_model)
-
+            else:
+                print("INF: Agility testcase already created")
     # rt_model = sp_get_project_test_steps(rt_model, item["ProjectId"], item["TestCaseId"])
 
     return model
@@ -221,6 +270,7 @@ def write_down(project_id, dic):
 
     # now write output to a file
     fh = open(fn, "a")
+    fh = open(fn, "w")
     # magic happens here to make it pretty-printed
     fh.write(simplejson.dumps(dic, indent=4, sort_keys=True))
     fh.close()
@@ -237,24 +287,20 @@ def lookup(project_id, tc_id):
     # Case . Many SP/A exists
 
     fn = str(project_id) + "_" + "testcases_created.json"
-    dic = {}
+    record_log = {}
     ai_tc_id = None
-    dic = json.load(open(fn))
-    if len(dic) == 0:
-        return None
-    else:
-        # Ok So we have a dic to examine.
-        # q. does key exist
-        x = dic.get(str(tc_id))
+    record_log = json.load(open(fn))
+    # q. does key exist
+    x = record_log.get(str(tc_id))
 
-        # No
-        if x == None:
-            return dic
-        # Yes
-        else:
-            ai_tc_dic = dic[str(tc_id)]
-            ai_tc_id = ai_tc_dic['ai_tc_id']
-            return ai_tc_id
+    # No
+    if x is None:
+        return None, record_log
+    # Yes
+    else:
+        ai_tc_dic = record_log[str(tc_id)]
+        ai_tc_id = ai_tc_dic['ai_tc_id']
+        return ai_tc_id, record_log
 
 
 def load_config():
@@ -279,7 +325,31 @@ def action(url, verb, headers, payload, params):
     return response, response.json()
 
 
-def ai_create_storylevel_testcase(storyId, title, description, status):
+def ai_update_story(storyId, status):
+    payload_ai_story_update_template = """<Asset>
+        <Relation name="Status" act="set">
+            <Asset idref="StoryStatus:""" + str(status) + """" />
+        </Relation>
+    </Asset>
+    """
+    pprint.pprint(payload_ai_story_update_template)
+    base_url_ai = "https://www16.v1host.com/api-examples/rest-1.v1"
+    url_ai = base_url_ai + "/Data/Story/" + str(storyId)
+    response_ai, result_ai = action(
+        url_ai,
+        verb="POST",
+        headers=headers_ai,
+        payload=payload_ai_story_update_template,
+        params={}
+    )
+
+    storyId = result_ai["id"].split(":")[1]
+    momentId = result_ai["id"].split(":")[2]
+
+    return {"momentId": momentId}
+
+
+def ai_create_storylevel_testcase(storyId, title, description):
     payload_ai_test_create_template = """<?xml version="1.0" encoding="UTF-8"?>
     <Asset href="/HMHealthSolutions/rest-1.v1/New/Test">
         <Attribute name="Name" act="set">""" + title + """</Attribute>
@@ -288,9 +358,6 @@ def ai_create_storylevel_testcase(storyId, title, description, status):
     <!-- Newly created Story -->
         <Relation name="Parent" act="set">
            <Asset href="/HMHealthSolutions/rest-1.v1/Data/Story/""" + storyId + """" idref="Story:""" + storyId + """" />
-        </Relation>
-        <Relation name="Status" act="set">
-            <Asset idref="TestStatus:""" + status + """" />
         </Relation>
     </Asset>
     """
@@ -307,16 +374,18 @@ def ai_create_storylevel_testcase(storyId, title, description, status):
     testcaseId = result_ai["id"].split(":")[1]
     testcaseMomentId = result_ai["id"].split(":")[2]
     storyId = result_ai["Attributes"]["Parent"]["value"]["idref"].split(":")[1]
-    print("INF: ai_storyId: ", storyId)
     print("INF: ai_testcaseId: ", testcaseId)
     print("INF: ai_testcaseMomentId: ", testcaseMomentId)
 
-    return {"testcaseId": testcaseId, "testcaseMomentId": testcaseMomentId}
+    return {"testcaseId": testcaseId, "momentId": testcaseMomentId}
 
 
 def ai_update_storylevel_testcase(tc_id, status):
+    # <Attribute name="Description" act="set">Modified Description V2</Attribute>
     payload_ai_test_update_template = """<Asset>
-    <Attribute name="Description" act="set">Modified Description V2</Attribute>
+        <Relation name="Status" act="set">
+            <Asset idref="TestStatus:""" + str(status) + """" />
+        </Relation>
     </Asset>
     """
     pprint.pprint(payload_ai_test_update_template)
@@ -391,41 +460,52 @@ sp_params["starting_row"] = 1
 sp_params["number_of_rows"] = 500
 rt_model = {}
 rt_ai_model = {}
+
+freq = cfg["spira"]["polling"]["frequency"]
+
+
+# scheduler = BlockingScheduler()
+# @scheduler.scheduled_job(IntervalTrigger(seconds=freq))
 ######################
 # Project Listing
 ######################
-url = base_url + "/projects"
-response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
-for item in result:
-    print("\n\n\nINF: Filtering ProjectId For Runtime Acceptance: ", str(item["ProjectId"]))
+def sp_poll(rt_model):
+    url = base_url + "/projects"
+    response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
+    for item in result:
+        print("\n\n\nINF: Filtering ProjectId For Runtime Acceptance: ", str(item["ProjectId"]))
 
-    if item["ProjectId"] not in sp_scope_project:
-        continue;
+        if item["ProjectId"] not in sp_scope_project:
+            continue;
 
-    print("INF: ProjectId Accepted: ", str(item["ProjectId"]))
+        print("INF: ProjectId Accepted: ", str(item["ProjectId"]))
 
-    ######################
-    # Project Requirements
-    # Contains Digital AI Story ID?
-    ######################
-    rt_model = sp_get_project_requirements(rt_model, item["ProjectId"])
-    # pprint.pprint(rt_model)
+        ######################
+        # Project Requirements
+        # Contains Digital AI Story ID?
+        ######################
+        rt_model = sp_get_project_requirements(rt_model, item["ProjectId"])
+        # pprint.pprint(rt_model)
 
-    ######################
-    # Project Test Cases
-    # Get all test for each project
-    ######################
-    rt_model = sp_get_project_test_cases(rt_model, item["ProjectId"])
-    # pprint.pprint(rt_model)
+        ######################
+        # Project Test Cases
+        # Get all test for each project
+        ######################
+        rt_model = sp_get_project_test_cases(rt_model, item["ProjectId"])
+        # pprint.pprint(rt_model)
 
-    ######################
-    # Test Case Runs
-    # Get all runs for testcase
-    ######################
-    rt_model = sp_get_project_test_runs(rt_model, item["ProjectId"])
+        ######################
+        # Test Case Runs
+        # Get all runs for testcase
+        ######################
+        rt_model = sp_get_project_test_runs(rt_model, item["ProjectId"])
 
-    dump_model(item["ProjectId"], rt_model)
+        dump_model(item["ProjectId"], rt_model)
 
+        return rt_model
+
+
+rt_model = sp_poll(rt_model)
 ######################
 # Post Processing - Test Case Runs
 # Get The Latest Test Run/TestCase and Update Agility
@@ -479,27 +559,41 @@ for artifact_id in rt_model:
 pprint.pprint(rt_ai_model)
 # pprint.pprint( list(rt_ai_model.items())[0])
 print("")
-print("INF: Number TestCase To Process ", len(list(rt_ai_model.items())))
-for tcId, tcDic in reversed(list(rt_ai_model.items())):
-    # print(type(tcData))
-    # print(type(trData))
-    # pprint.pprint(tcId)
-    # pprint.pprint(tcDic)
-    storyId_ai = tcDic.get("storyId_ai")
-    print("INF: Story Id", storyId_ai)
-    requirementId = tcDic.get("requirementId")
-    print("INF: Requirement Id", requirementId)
-    testcaseId_ai = tcDic.get("testcaseId_id")
-    print("INF: Test Id Agility", testcaseId_ai)
+process_queue_size = len(list(rt_ai_model.items()))
+print("INF: Processing Queue Size ", process_queue_size)
+if process_queue_size > 0:
+    for tcId, tcDic in reversed(list(rt_ai_model.items())):
+        storyId_ai = tcDic.get("storyId_ai")
+        print("INF: Story Id", storyId_ai)
+        requirementId = tcDic.get("requirementId")
+        print("INF: Requirement Id", requirementId)
+        testcaseId_ai = tcDic.get("testcaseId_id")
+        print("INF: Test Id Agility", testcaseId_ai)
 
-    for item in collections.OrderedDict(reversed(list(tcDic.items()))):
-        # pprint.pprint(item)
-        if isinstance(item, NumberTypes):
-            # Found some test runs
-            tr_id = item
-            tr_exec_id = tcDic.get(item)["executionStatusId"]
-            print("INF: Test Run Id", tr_id, "Execution Status", tr_exec_id)
-            tc_moment_id = ai_update_storylevel_testcase(tc_id=tc_id_ai, status=tr_exec_id)["momentId"]
-            print("INF: Test Moment Id", tc_moment_id)
+        for item in collections.OrderedDict(reversed(list(tcDic.items()))):
+            # pprint.pprint(item)
+            if isinstance(item, NumberTypes):
+                # Found some test runs
+                tr_id = item
+                tr_exec_id = tcDic.get(item)["executionStatusId"]
 
-            # if execution status is passed do we close story?
+                # Assign Agility Pass/Fail Id
+                # Failed = 1; Passed = 2; NotRun = 3; NotApplicable = 4; Blocked = 5; Caution = 6;
+                if tr_exec_id == 2:
+                    ai_test_status = cfg["digital"]["test"]["status"]["passId"]
+                else:
+                    ai_test_status = cfg["digital"]["test"]["status"]["failId"]
+
+                print("INF: Test Run Id", tr_id, "Execution Status", tr_exec_id)
+                tc_moment_id = ai_update_storylevel_testcase(tc_id=tc_id_ai, status=ai_test_status)["momentId"]
+                print("INF: Test Moment Id", tc_moment_id)
+
+                # if execution status is passed do we close story?
+                if ai_test_status == cfg["digital"]["test"]["status"]["passId"]:
+                    rt_status = cfg["digital"]["story"]["status"]["done"]
+                    story_moment_id = ai_update_story(storyId=storyId_ai, status=rt_status)["momentId"]
+                    print("INF: Story Moment Id", story_moment_id)
+else:
+    print("INF: Queue Is Empty", process_queue_size)
+
+    # scheduler.start()
