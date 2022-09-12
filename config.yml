@@ -35,6 +35,8 @@ digital:
   service_instance: api-examples
   story:
     status:
+      accepted: 137
+      in_progress: 134
       not_started: 133
       done: 135
   test:

@@ -8,6 +8,12 @@ ID of Plugin!!!
 Programatic links..
 
 
+# Testcase  Update
+- include
+- status
+- title
+- description?
+
 # Infra
 - NoSeq DB 
 - Move from Public Agility to enGen
@@ -48,3 +54,19 @@ Start/End Times
 # Workspace
 - Python environment
 - VCS / Git repo 
+
+
+# Exception Handling
+- Catpure Bad Requests
+- 
+# Testcase Scenarios
+## Testcase Updates
+- Story Id 
+- Test run
+- Test Status
+  - multiple passes
+- Testcase Description
+  - Include New Line &nbsp;
+- Testcase Title
+- Testcase Status
+

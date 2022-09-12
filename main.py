@@ -49,6 +49,8 @@ headers_ai = {
     'Content-Type': 'application/xml'
 }
 
+NumberTypes = (int, float, complex)
+
 
 def sp_get_project_test_runs(model, project_id):
     print("\nProject Test Case/Set Runs: ")
@@ -129,6 +131,7 @@ def sp_get_project_test_cases(model, project_id):
     response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
 
     for item in result:
+
         print("INF: TestCaseId: ", str(item["TestCaseId"]))
 
         ai_storyId = item["CustomProperties"][6]["StringValue"]
@@ -184,21 +187,22 @@ def sp_get_project_test_cases(model, project_id):
                 # 2. update record json log!
                 response_dic.update({
                     item["TestCaseId"]: {
-                        "ai_tc_id": int(ai_tc_dic["testcaseId"]),
-                        "ai_moment_id": int(ai_tc_dic["momentId"]),
-                        "ai_storyId": int(ai_storyId),
+                        "tc_id_ai": int(ai_tc_dic["testcaseId"]),
+                        "moment_id_ai": int(ai_tc_dic["momentId"]),
+                        "storyId_ai": int(ai_storyId),
+                        "tc_status_id": int(item["TestCaseStatusId"]),
                         "lc": 1}
                 })
                 write_down(item["ProjectId"], response_dic)
 
                 # 3. update model for downstream processing
-                model.update({
+                tc_model_item = {
                     item["TestCaseId"]: {
                         "00_info": "!!!Test Case!!!",
                         "testCaseId": item["TestCaseId"],
+                        # "testCaseId_Agility": 8310,
                         "testCaseId_Agility": ai_tc_dic["testcaseId"],
                         "momentId_Agility": ai_tc_dic["momentId"],
-                        # "testCaseId_Agility": 8310,
                         "projectId": item["ProjectId"],
                         "statusId": item["TestCaseStatusId"],
                         "customProperties": item["CustomProperties"],
@@ -213,11 +217,35 @@ def sp_get_project_test_cases(model, project_id):
 
                         "authorName": item["AuthorName"],
                         "ownerName": item["OwnerName"]
-                    }})
+                    }}
+                model.update(tc_model_item)
             # pprint.pprint(rt_model)
             else:
                 print("INF: Agility testcase already created")
-    # rt_model = sp_get_project_test_steps(rt_model, item["ProjectId"], item["TestCaseId"])
+                # Lets use the log tests so that test run can process something!
+                # "testCaseId_Agility": 8310,
+                tc_model_item = {
+                    item["TestCaseId"]: {
+                        "00_info": "!!!Test Case!!!",
+                        "testCaseId": item["TestCaseId"],
+                        "storyId": ai_storyId,
+                        "testCaseId_Agility": response_agility_tc_id,
+                        "momentId_Agility": response_dic.get(str(item["TestCaseId"]))["moment_id_ai"],
+                        "statusId": item["TestCaseStatusId"],
+                        "requirementId": ai_test_requirementId,
+                        "artifactTypeId": item["ArtifactTypeId"],
+
+                        "projectName": item["ProjectName"],
+                        "name": item["Name"],
+                        "description": item["Description"],
+                        "tags": item["Tags"],
+
+                        "authorName": item["AuthorName"],
+                        "ownerName": item["OwnerName"],
+
+                        "customProperties": item["CustomProperties"]
+                    }}
+                model.update(tc_model_item)
 
     return model
 
@@ -299,7 +327,7 @@ def lookup(project_id, tc_id):
     # Yes
     else:
         ai_tc_dic = record_log[str(tc_id)]
-        ai_tc_id = ai_tc_dic['ai_tc_id']
+        ai_tc_id = ai_tc_dic['tc_id_ai']
         return ai_tc_id, record_log
 
 
@@ -361,13 +389,16 @@ def ai_create_storylevel_testcase(storyId, title, description):
         </Relation>
     </Asset>
     """
+
+    # Filter non break spaces
+    payload = payload_ai_test_create_template.replace("&nbsp;", "").replace("<br>", "&lt;br&gt;")
     base_url_ai = "https://www16.v1host.com/api-examples/rest-1.v1"
     url_ai = base_url_ai + "/Data/Test"
     response_ai, result_ai = action(
         url_ai,
         verb="POST",
         headers=headers_ai,
-        payload=payload_ai_test_create_template,
+        payload=payload,
         params={}
     )
 
@@ -405,6 +436,24 @@ def ai_update_storylevel_testcase(tc_id, status):
     # print("INF: ai_testcaseMomentId: ", testcaseMomentId)
 
     return {"momentId": testcaseMomentId}
+
+
+def ai_query_storylevel_testcase(tc_id):
+    # <Attribute name="Description" act="set">Modified Description V2</Attribute>
+    base_url_ai = "https://www16.v1host.com/api-examples/rest-1.v1"
+    url_ai = base_url_ai + "/Data/Test/" + str(tc_id)
+    response_ai, result_ai = action(
+        url_ai,
+        verb="GET",
+        headers=headers_ai,
+        payload={},
+        params={}
+    )
+
+    testcaseId = result_ai["id"].split(":")[1]
+    # testcaseMomentId = result_ai["id"].split(":")[2]
+
+    return result_ai
 
 
 # Test Case Builder
@@ -458,10 +507,57 @@ base_url = (
 
 sp_params["starting_row"] = 1
 sp_params["number_of_rows"] = 500
-rt_model = {}
+rt_model_sp = {}
 rt_ai_model = {}
 
 freq = cfg["spira"]["polling"]["frequency"]
+
+
+def sp_2_ai_update_testcase_builder(rt_model_sp):
+    rt_ai_model = OrderedDict()
+
+    for artifact_id in rt_model_sp:
+        artifact_dic = rt_model_sp.get(artifact_id)
+
+        if artifact_dic["artifactTypeId"] == cfg["spira"]["artifact_ids"]["test_case"]:
+            tc_id = artifact_dic["testCaseId"]
+            tc_id_ai = rt_model_sp[tc_id]["testCaseId_Agility"]
+            storyId = rt_model_sp[tc_id]["storyId"]
+            requirementId = rt_model_sp[tc_id]["requirementId"]
+            rt_ai_model.update({
+                tc_id: {
+                    "storyId_ai": storyId,
+                    "testcaseId_id": tc_id_ai,
+                    "requirementId": requirementId,
+                    "tr_ids": {
+                    }
+                }
+            })
+            print("TC ID ", tc_id)
+            print("Story ID ", storyId)
+            print("Req ID ", requirementId)
+
+        # Is Test Run Artifact Type?
+        if artifact_dic["artifactTypeId"] == cfg["spira"]["artifact_ids"]["test_run"]:
+            print("INF: TestRun Level Identified ")
+            ts = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+            tc_id = artifact_dic["testCaseId"]
+
+            tc_execution_status_id = artifact_dic["executionStatusId"]
+            tr_id = artifact_id
+            rt_ai_model[tc_id]["tr_ids"].update({
+                tr_id: {
+                    "executionStatusId": tc_execution_status_id
+                }
+            })
+
+            # storyId = rt_model[tc_id]
+            print("TC Run and Status ID ", tr_id, "-", tc_execution_status_id)
+
+        else:
+            print("INF: Not TestRun, if TC then create? ")
+
+    return rt_ai_model
 
 
 # scheduler = BlockingScheduler()
@@ -472,6 +568,7 @@ freq = cfg["spira"]["polling"]["frequency"]
 def sp_poll(rt_model):
     url = base_url + "/projects"
     response, result = action(url, verb="GET", headers=headers, payload=payload, params=sp_params)
+
     for item in result:
         print("\n\n\nINF: Filtering ProjectId For Runtime Acceptance: ", str(item["ProjectId"]))
 
@@ -493,6 +590,7 @@ def sp_poll(rt_model):
         ######################
         rt_model = sp_get_project_test_cases(rt_model, item["ProjectId"])
         # pprint.pprint(rt_model)
+        # rt_model = sp_get_project_test_steps(rt_model, item["ProjectId"], item["TestCaseId"])
 
         ######################
         # Test Case Runs
@@ -500,100 +598,108 @@ def sp_poll(rt_model):
         ######################
         rt_model = sp_get_project_test_runs(rt_model, item["ProjectId"])
 
+        ###
         dump_model(item["ProjectId"], rt_model)
 
         return rt_model
 
 
-rt_model = sp_poll(rt_model)
+######################
+# Processing - Reqs / Testcase Analysis
+# Filter out valid req / testcases pairs
+######################
+rt_model_sp = sp_poll(rt_model_sp)
+
 ######################
 # Post Processing - Test Case Runs
-# Get The Latest Test Run/TestCase and Update Agility
+# - Build Agility Update Testcase Model
+# - Sort / Get The Latest Test Run/TestCase
 ######################
 print("\n\nINF: Starting Test Execution Analysis")
-NumberTypes = (int, float, complex)
-
-rt_ai_model = OrderedDict()
-for artifact_id in rt_model:
-    artifact_dic = rt_model.get(artifact_id)
-
-    if artifact_dic["artifactTypeId"] == cfg["spira"]["artifact_ids"]["test_case"]:
-        tc_id = artifact_dic["testCaseId"]
-        tc_id_ai = rt_model[tc_id]["testCaseId_Agility"]
-        storyId = rt_model[tc_id]["storyId"]
-        requirementId = rt_model[tc_id]["requirementId"]
-        rt_ai_model.update({
-            tc_id: {
-                "storyId_ai": storyId,
-                "testcaseId_id": tc_id_ai,
-                "requirementId": requirementId,
-            }
-        })
-        print("TC ID ", tc_id)
-        print("Story ID ", storyId)
-        print("Req ID ", requirementId)
-
-    # Is Test Run Artifact Type?
-    if artifact_dic["artifactTypeId"] == cfg["spira"]["artifact_ids"]["test_run"]:
-        print("INF: TestRun Level Identified ")
-        ts = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-        tc_id = artifact_dic["testCaseId"]
-
-        tc_execution_status_id = artifact_dic["executionStatusId"]
-        tr_id = artifact_id
-        rt_ai_model[tc_id].update({
-            tr_id: {
-                "executionStatusId": tc_execution_status_id
-            }
-        })
-
-        # storyId = rt_model[tc_id]
-        print("TC Run and Status ID ", tr_id, "-", tc_execution_status_id)
-
-    else:
-        print("INF: Not TestRun, if TC then create? ")
+rt_ai_model = sp_2_ai_update_testcase_builder(rt_model_sp)
 
 #
 # RT Model Analysis For Agility Information
 #
+print("\n\n\nINF: Agility Test Run Processing ")
+print("INF: Model Under inspection  ")
 pprint.pprint(rt_ai_model)
-# pprint.pprint( list(rt_ai_model.items())[0])
-print("")
 process_queue_size = len(list(rt_ai_model.items()))
 print("INF: Processing Queue Size ", process_queue_size)
 if process_queue_size > 0:
     for tcId, tcDic in reversed(list(rt_ai_model.items())):
         storyId_ai = tcDic.get("storyId_ai")
-        print("INF: Story Id", storyId_ai)
+        print("\nINF: Story Id", storyId_ai)
         requirementId = tcDic.get("requirementId")
         print("INF: Requirement Id", requirementId)
         testcaseId_ai = tcDic.get("testcaseId_id")
         print("INF: Test Id Agility", testcaseId_ai)
 
-        for item in collections.OrderedDict(reversed(list(tcDic.items()))):
+        # Sieve through the runtime list items
+        for item in collections.OrderedDict(reversed(list(tcDic.get('tr_ids').items()))):
             # pprint.pprint(item)
-            if isinstance(item, NumberTypes):
-                # Found some test runs
-                tr_id = item
-                tr_exec_id = tcDic.get(item)["executionStatusId"]
+            # tr_ids_dic = tcDic.get('tr_ids')
+            # if tr_ids_dic is not None:
+            # if isinstance(item, NumberTypes):
+            # Found some test runs!
+            tr_id = item
+            # tr_exec_id = tcDic['tr_ids'].get(item)
+            tr_exec_id = tcDic['tr_ids'].get(item)["executionStatusId"]
 
-                # Assign Agility Pass/Fail Id
-                # Failed = 1; Passed = 2; NotRun = 3; NotApplicable = 4; Blocked = 5; Caution = 6;
-                if tr_exec_id == 2:
-                    ai_test_status = cfg["digital"]["test"]["status"]["passId"]
-                else:
-                    ai_test_status = cfg["digital"]["test"]["status"]["failId"]
+            # Assign Agility Pass/Fail Id
+            # Failed = 1; Passed = 2; NotRun = 3; NotApplicable = 4; Blocked = 5; Caution = 6;
+            if tr_exec_id == 2:
+                ai_test_status = cfg["digital"]["test"]["status"]["passId"]
+            else:
+                ai_test_status = cfg["digital"]["test"]["status"]["failId"]
 
-                print("INF: Test Run Id", tr_id, "Execution Status", tr_exec_id)
-                tc_moment_id = ai_update_storylevel_testcase(tc_id=tc_id_ai, status=ai_test_status)["momentId"]
-                print("INF: Test Moment Id", tc_moment_id)
+            print("INF: Test Run Id", tr_id, "Execution Status", tr_exec_id)
+            tc_moment_id = ai_update_storylevel_testcase(tc_id=testcaseId_ai, status=ai_test_status)["momentId"]
+            print("INF: Test Moment Id", tc_moment_id)
 
-                # if execution status is passed do we close story?
-                if ai_test_status == cfg["digital"]["test"]["status"]["passId"]:
-                    rt_status = cfg["digital"]["story"]["status"]["done"]
-                    story_moment_id = ai_update_story(storyId=storyId_ai, status=rt_status)["momentId"]
-                    print("INF: Story Moment Id", story_moment_id)
 else:
     print("INF: Queue Is Empty", process_queue_size)
 
-    # scheduler.start()
+# story_scope=1476
+# https://www16.v1host.com/api-examples/rest-1.v1/Data/Story/8247/Scope
+# https://www16.v1host.com/api-examples/rest-1.v1/Data/Scope/1476/Workitems:Test
+#####
+# Story Level Processing
+#####
+# - Flatten Test run results to single value
+
+rt_story_status = {}
+for tcId, tcDic in reversed(list(rt_ai_model.items())):
+    testcaseId_ai = tcDic.get("testcaseId_id")
+    print("\nINF: Test Id Agility", testcaseId_ai)
+    storyId_ai = tcDic.get("storyId_ai")
+    print("INF: Story Id", storyId_ai)
+    # https://www16.v1host.com/api-examples/rest-1.v1/Data/Test/8339/Status.Name
+
+    tc_response = ai_query_storylevel_testcase(tc_id=testcaseId_ai)
+
+    tc_execution_status_ai = tc_response["Attributes"]["Status.Name"]["value"]
+
+    # If any of the stories testcases fail, then whole story fails
+    rt_story_status[int(storyId_ai)] = 1
+    if tc_execution_status_ai == "Failed":
+        rt_story_status[int(storyId_ai)] -= 1
+        continue
+
+pprint.pprint(rt_story_status)
+# For each Story update!!!
+
+for storyId_ai, storyId_ai_agg_test_status in rt_story_status.items():
+
+    # Failed
+    if storyId_ai_agg_test_status == 0:
+        rt_status = cfg["digital"]["story"]["status"]["in_progress"]
+        story_moment_id = ai_update_story(storyId=storyId_ai, status=rt_status)["momentId"]
+    # All Passed
+    else:
+        rt_status = cfg["digital"]["story"]["status"]["done"]
+        story_moment_id = ai_update_story(storyId=storyId_ai, status=rt_status)["momentId"]
+
+    print("\nINF: Story(Done) Moment Id", story_moment_id)
+
+# scheduler.start()

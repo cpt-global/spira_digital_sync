@@ -6,6 +6,29 @@ from operator import getitem
 import requests
 import json
 
+sp_ai_relationship = {
+
+    1815: {
+        "tr_ids": {2385: {'executionStatusId': 1},
+                   2386: {'executionStatusId': 6},
+                   2387: {'executionStatusId': 2},
+                   2487: {'executionStatusId': 1},
+                   2540: {'executionStatusId': 2}
+                   },
+        'requirementId': '5678999',
+        'storyId_ai': '8337',
+        'testcaseId_id': 8338},
+
+    1489: {
+        "tr_ids": {2180: {'executionStatusId': 1}
+                   },
+        'requirementId': '5678999',
+        'storyId_ai': '8337',
+        'testcaseId_id': 8339}
+
+}
+# For each tc
+
 sp_lifecycle_mgt = {}
 sp_lifecycle_mgt = {
     # Testcase Id
@@ -51,7 +74,6 @@ for tc_id in sp_lifecycle_mgt:
     tc_tr_id_last = sorted(list(tr_ids))[-1]
     for tr_id in tr_ids:
         pprint.pprint(tr_ids[tr_id])
-
 
 exit("")
 pprint.pprint(sp_lifecycle_mgt)
