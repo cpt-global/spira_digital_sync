@@ -156,6 +156,11 @@ def sp_get_project_test_cases(model, project_id):
                 # 1. create agility testcase with reference details
                 integrity_link_tc = "https://highmarkhealth.spiraservice.net/" + str(
                     item["ProjectId"]) + "/TestCase/" + str(item["TestCaseId"]) + "/Overview.aspx"
+
+                # Test: Empty Description
+                if item["Description"] is None:
+                    item["Description"] = "&lt;br&gt;"
+
                 item["Description"] += "&lt;br&gt;"
                 item["Description"] += "&lt;br&gt;"
                 item["Description"] += "&lt;strong&gt;"
@@ -377,6 +382,39 @@ def ai_update_story(storyId, status):
     return {"momentId": momentId}
 
 
+def ai_update_story(storyId, status, description):
+    payload_ai_story_update_template = """<Asset>
+        <Attribute name="Description" act="set">""" + description + """</Attribute>
+        <Relation name="Status" act="set">
+            <Asset idref="StoryStatus:""" + str(status) + """" />
+        </Relation>
+    </Asset>
+    """
+    pprint.pprint(payload_ai_story_update_template)
+    payload = payload_ai_story_update_template \
+        .replace("&nbsp;", "") \
+        .replace("<br>", "&lt;br&gt;") \
+        .replace("<strong>", "&lt;strong&gt;") \
+        .replace("</strong>", "&lt;/strong&gt;") \
+        .replace("<u>", "&lt;u&gt;") \
+        .replace("</u>", "&lt;/u&gt;")
+
+    base_url_ai = "https://www16.v1host.com/api-examples/rest-1.v1"
+    url_ai = base_url_ai + "/Data/Story/" + str(storyId)
+    response_ai, result_ai = action(
+        url_ai,
+        verb="POST",
+        headers=headers_ai,
+        payload=payload,
+        params={}
+    )
+
+    storyId = result_ai["id"].split(":")[1]
+    momentId = result_ai["id"].split(":")[2]
+
+    return {"momentId": momentId}
+
+
 def ai_create_storylevel_testcase(storyId, title, description):
     payload_ai_test_create_template = """<?xml version="1.0" encoding="UTF-8"?>
     <Asset href="/HMHealthSolutions/rest-1.v1/New/Test">
@@ -452,6 +490,20 @@ def ai_query_storylevel_testcase(tc_id):
 
     testcaseId = result_ai["id"].split(":")[1]
     # testcaseMomentId = result_ai["id"].split(":")[2]
+
+    return result_ai
+
+
+def ai_query_story(storyId):
+    base_url_ai = "https://www16.v1host.com/api-examples/rest-1.v1"
+    url_ai = base_url_ai + "/Data/Story/" + str(storyId)
+    response_ai, result_ai = action(
+        url_ai,
+        verb="GET",
+        headers=headers_ai,
+        payload={},
+        params={}
+    )
 
     return result_ai
 
@@ -637,13 +689,8 @@ if process_queue_size > 0:
 
         # Sieve through the runtime list items
         for item in collections.OrderedDict(reversed(list(tcDic.get('tr_ids').items()))):
-            # pprint.pprint(item)
-            # tr_ids_dic = tcDic.get('tr_ids')
-            # if tr_ids_dic is not None:
-            # if isinstance(item, NumberTypes):
             # Found some test runs!
             tr_id = item
-            # tr_exec_id = tcDic['tr_ids'].get(item)
             tr_exec_id = tcDic['tr_ids'].get(item)["executionStatusId"]
 
             # Assign Agility Pass/Fail Id
@@ -664,8 +711,10 @@ else:
 # https://www16.v1host.com/api-examples/rest-1.v1/Data/Story/8247/Scope
 # https://www16.v1host.com/api-examples/rest-1.v1/Data/Scope/1476/Workitems:Test
 #####
-# Story Level Processing
+# Story Testcase Results Building
 #####
+# Input - rt_ai_model
+# output - rt_story_status
 # - Flatten Test run results to single value
 
 rt_story_status = {}
@@ -674,31 +723,73 @@ for tcId, tcDic in reversed(list(rt_ai_model.items())):
     print("\nINF: Test Id Agility", testcaseId_ai)
     storyId_ai = tcDic.get("storyId_ai")
     print("INF: Story Id", storyId_ai)
-    # https://www16.v1host.com/api-examples/rest-1.v1/Data/Test/8339/Status.Name
 
     tc_response = ai_query_storylevel_testcase(tc_id=testcaseId_ai)
 
     tc_execution_status_ai = tc_response["Attributes"]["Status.Name"]["value"]
 
     # If any of the stories testcases fail, then whole story fails
-    rt_story_status[int(storyId_ai)] = 1
+    if rt_story_status.get(int(storyId_ai)) is None:
+        # Story has no test history
+        rt_story_status[int(storyId_ai)] = {
+            "passed": 0,
+            "failed": 0
+        }
+
     if tc_execution_status_ai == "Failed":
-        rt_story_status[int(storyId_ai)] -= 1
-        continue
+        rt_story_status[int(storyId_ai)]["failed"] += 1
+    elif tc_execution_status_ai == "Passed":
+        rt_story_status[int(storyId_ai)]["passed"] += 1
+    elif tc_execution_status_ai is None:
+        # Happens when TC has no history
+        rt_story_status[int(storyId_ai)]["failed"] = 0
+        rt_story_status[int(storyId_ai)]["passed"] = 0
+    else:
+        exit("ERR: Unknown test execution status found (", tc_execution_status_ai, ")")
+        # exit("ERR: Unknown test execution status")
 
 pprint.pprint(rt_story_status)
 # For each Story update!!!
 
+
+print("\n\nINF: Update Story Status/Description")
 for storyId_ai, storyId_ai_agg_test_status in rt_story_status.items():
+    print("INF: Story Id", storyId_ai)
+
+    story_ai_desc = ai_query_story(storyId=storyId_ai)["Attributes"]["Description"]["value"]
+    if story_ai_desc is None:
+        new_desc = ""
+    else:
+        new_desc = story_ai_desc
+
+    ts = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    tc_total = storyId_ai_agg_test_status["passed"] + storyId_ai_agg_test_status["failed"]
+
+    new_desc += "&lt;br&gt;"
+    new_desc += "&lt;br&gt;"
+    new_desc += "&lt;u&gt;"
+    # new_desc += "&lt;strong&gt;"
+    new_desc += "Spira Plan Story Status Reasoning"
+    new_desc += "&lt;/u&gt;"
+    # new_desc += "&lt;/strong&gt;"
+    new_desc += "&lt;br&gt;"
+    new_desc += "Date[yyyy-mm-dd]: " + ts
+    new_desc += "&lt;br&gt;"
+    new_desc += "Testcase Total: " + str(tc_total)
+    new_desc += "&lt;br&gt;"
+    new_desc += "Tests Passed: " + str(storyId_ai_agg_test_status["passed"])
+    new_desc += "&lt;br&gt;"
+    new_desc += "Tests Failed: " + str(storyId_ai_agg_test_status["failed"])
+    new_desc += "&lt;br&gt;"
 
     # Failed
-    if storyId_ai_agg_test_status == 0:
-        rt_status = cfg["digital"]["story"]["status"]["in_progress"]
-        story_moment_id = ai_update_story(storyId=storyId_ai, status=rt_status)["momentId"]
+    if storyId_ai_agg_test_status["passed"] > 0:
+        rt_status = cfg["digital"]["story"]["status"]["done"]
+        story_moment_id = ai_update_story(storyId=storyId_ai, status=rt_status, description=new_desc)["momentId"]
     # All Passed
     else:
-        rt_status = cfg["digital"]["story"]["status"]["done"]
-        story_moment_id = ai_update_story(storyId=storyId_ai, status=rt_status)["momentId"]
+        rt_status = cfg["digital"]["story"]["status"]["in_progress"]
+        story_moment_id = ai_update_story(storyId=storyId_ai, status=rt_status, description=new_desc)["momentId"]
 
     print("\nINF: Story(Done) Moment Id", story_moment_id)
 

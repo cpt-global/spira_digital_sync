@@ -61,11 +61,12 @@ Start/End Times
 - 
 # Testcase Scenarios
 ## Testcase Updates
-- Story Id 
+- Story Id
 - Test run
 - Test Status
   - multiple passes
 - Testcase Description
+  - Description is empty(SP);
   - Include New Line &nbsp;
 - Testcase Title
 - Testcase Status

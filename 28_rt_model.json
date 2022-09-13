@@ -314,6 +314,326 @@
         "statusId": 2,
         "tags": null
     },
+    "1599": {
+        "00_info": "!!!Test Case!!!",
+        "artifactTypeId": 2,
+        "authorName": "Anthony Ennis",
+        "customProperties": [
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 26,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_01",
+                    "CustomPropertyId": 107,
+                    "CustomPropertyTypeId": 7,
+                    "CustomPropertyTypeName": "Multiselect List",
+                    "IsDeleted": false,
+                    "Name": "System",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "N"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 1,
+                    "SystemDataType": "System.Collections.Generic.List`1[System.Int32]"
+                },
+                "IntegerListValue": [
+                    447
+                ],
+                "IntegerValue": null,
+                "PropertyNumber": 1,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 27,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_02",
+                    "CustomPropertyId": 108,
+                    "CustomPropertyTypeId": 7,
+                    "CustomPropertyTypeName": "Multiselect List",
+                    "IsDeleted": false,
+                    "Name": "Sub-System",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "N"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 2,
+                    "SystemDataType": "System.Collections.Generic.List`1[System.Int32]"
+                },
+                "IntegerListValue": [
+                    93
+                ],
+                "IntegerValue": null,
+                "PropertyNumber": 2,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 29,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_03",
+                    "CustomPropertyId": 119,
+                    "CustomPropertyTypeId": 7,
+                    "CustomPropertyTypeName": "Multiselect List",
+                    "IsDeleted": false,
+                    "Name": "Automation",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "Y"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 3,
+                    "SystemDataType": "System.Collections.Generic.List`1[System.Int32]"
+                },
+                "IntegerListValue": [],
+                "IntegerValue": null,
+                "PropertyNumber": 3,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 28,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_04",
+                    "CustomPropertyId": 120,
+                    "CustomPropertyTypeId": 7,
+                    "CustomPropertyTypeName": "Multiselect List",
+                    "IsDeleted": false,
+                    "Name": "Regression",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "Y"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 4,
+                    "SystemDataType": "System.Collections.Generic.List`1[System.Int32]"
+                },
+                "IntegerListValue": [],
+                "IntegerValue": null,
+                "PropertyNumber": 4,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 30,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_05",
+                    "CustomPropertyId": 121,
+                    "CustomPropertyTypeId": 7,
+                    "CustomPropertyTypeName": "Multiselect List",
+                    "IsDeleted": false,
+                    "Name": "Impacted Partners",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "N"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 5,
+                    "SystemDataType": "System.Collections.Generic.List`1[System.Int32]"
+                },
+                "IntegerListValue": [
+                    514
+                ],
+                "IntegerValue": null,
+                "PropertyNumber": 5,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 41,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_06",
+                    "CustomPropertyId": 122,
+                    "CustomPropertyTypeId": 6,
+                    "CustomPropertyTypeName": "List",
+                    "IsDeleted": false,
+                    "Name": "Pend",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "Y"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 6,
+                    "SystemDataType": "System.Int32"
+                },
+                "IntegerListValue": null,
+                "IntegerValue": null,
+                "PropertyNumber": 6,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": null,
+                    "CustomPropertyFieldName": "Custom_07",
+                    "CustomPropertyId": 123,
+                    "CustomPropertyTypeId": 1,
+                    "CustomPropertyTypeName": "Text",
+                    "IsDeleted": false,
+                    "Name": "Digital AI Story ID",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "Y"
+                        },
+                        {
+                            "CustomPropertyOptionId": 4,
+                            "Value": "N"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 7,
+                    "SystemDataType": "System.String"
+                },
+                "IntegerListValue": null,
+                "IntegerValue": null,
+                "PropertyNumber": 7,
+                "StringValue": "8337"
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": null,
+                    "CustomPropertyFieldName": "Custom_08",
+                    "CustomPropertyId": 125,
+                    "CustomPropertyTypeId": 1,
+                    "CustomPropertyTypeName": "Text",
+                    "IsDeleted": false,
+                    "Name": "dev_requirementId",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "Y"
+                        },
+                        {
+                            "CustomPropertyOptionId": 4,
+                            "Value": "N"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 8,
+                    "SystemDataType": "System.String"
+                },
+                "IntegerListValue": null,
+                "IntegerValue": null,
+                "PropertyNumber": 8,
+                "StringValue": "878978"
+            }
+        ],
+        "description": null,
+        "momentId_Agility": 16804,
+        "name": "AE Testcase",
+        "ownerName": null,
+        "projectName": "Sandbox - Claims Unit and Integration",
+        "requirementId": "878978",
+        "statusId": 1,
+        "storyId": "8337",
+        "tags": null,
+        "testCaseId": 1599,
+        "testCaseId_Agility": 8340
+    },
+    "1796": {
+        "00_info": "!!!Test Run!!!",
+        "artifactTypeId": 5,
+        "customProperties": [],
+        "executionStatusId": 2,
+        "projectId": 28,
+        "releaseId": 185,
+        "testCaseId": 1599,
+        "testRunId": 1796,
+        "testRunTypeId": 1
+    },
+    "1797": {
+        "00_info": "!!!Test Run!!!",
+        "artifactTypeId": 5,
+        "customProperties": [],
+        "executionStatusId": 1,
+        "projectId": 28,
+        "releaseId": 185,
+        "testCaseId": 1599,
+        "testRunId": 1797,
+        "testRunTypeId": 1
+    },
     "1799": {
         "00_info": "!!!Requirement!!!",
         "CoverageCountFailed": 0,
@@ -330,6 +650,304 @@
         "requirementTypeName": "User Story",
         "statusId": 2,
         "tags": null
+    },
+    "1813": {
+        "00_info": "!!!Test Case!!!",
+        "artifactTypeId": 2,
+        "authorName": "Anthony Ennis",
+        "customProperties": [
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 26,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_01",
+                    "CustomPropertyId": 107,
+                    "CustomPropertyTypeId": 7,
+                    "CustomPropertyTypeName": "Multiselect List",
+                    "IsDeleted": false,
+                    "Name": "System",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "N"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 1,
+                    "SystemDataType": "System.Collections.Generic.List`1[System.Int32]"
+                },
+                "IntegerListValue": [
+                    447
+                ],
+                "IntegerValue": null,
+                "PropertyNumber": 1,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 27,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_02",
+                    "CustomPropertyId": 108,
+                    "CustomPropertyTypeId": 7,
+                    "CustomPropertyTypeName": "Multiselect List",
+                    "IsDeleted": false,
+                    "Name": "Sub-System",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "N"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 2,
+                    "SystemDataType": "System.Collections.Generic.List`1[System.Int32]"
+                },
+                "IntegerListValue": [
+                    93
+                ],
+                "IntegerValue": null,
+                "PropertyNumber": 2,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 29,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_03",
+                    "CustomPropertyId": 119,
+                    "CustomPropertyTypeId": 7,
+                    "CustomPropertyTypeName": "Multiselect List",
+                    "IsDeleted": false,
+                    "Name": "Automation",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "Y"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 3,
+                    "SystemDataType": "System.Collections.Generic.List`1[System.Int32]"
+                },
+                "IntegerListValue": [],
+                "IntegerValue": null,
+                "PropertyNumber": 3,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 28,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_04",
+                    "CustomPropertyId": 120,
+                    "CustomPropertyTypeId": 7,
+                    "CustomPropertyTypeName": "Multiselect List",
+                    "IsDeleted": false,
+                    "Name": "Regression",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "Y"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 4,
+                    "SystemDataType": "System.Collections.Generic.List`1[System.Int32]"
+                },
+                "IntegerListValue": [],
+                "IntegerValue": null,
+                "PropertyNumber": 4,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 30,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_05",
+                    "CustomPropertyId": 121,
+                    "CustomPropertyTypeId": 7,
+                    "CustomPropertyTypeName": "Multiselect List",
+                    "IsDeleted": false,
+                    "Name": "Impacted Partners",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "N"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 5,
+                    "SystemDataType": "System.Collections.Generic.List`1[System.Int32]"
+                },
+                "IntegerListValue": [
+                    514
+                ],
+                "IntegerValue": null,
+                "PropertyNumber": 5,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": {
+                        "Active": false,
+                        "CustomPropertyListId": 41,
+                        "Name": null,
+                        "ProjectTemplateId": 0,
+                        "SortedOnValue": false,
+                        "Values": null
+                    },
+                    "CustomPropertyFieldName": "Custom_06",
+                    "CustomPropertyId": 122,
+                    "CustomPropertyTypeId": 6,
+                    "CustomPropertyTypeName": "List",
+                    "IsDeleted": false,
+                    "Name": "Pend",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "Y"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 6,
+                    "SystemDataType": "System.Int32"
+                },
+                "IntegerListValue": null,
+                "IntegerValue": null,
+                "PropertyNumber": 6,
+                "StringValue": null
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": null,
+                    "CustomPropertyFieldName": "Custom_07",
+                    "CustomPropertyId": 123,
+                    "CustomPropertyTypeId": 1,
+                    "CustomPropertyTypeName": "Text",
+                    "IsDeleted": false,
+                    "Name": "Digital AI Story ID",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "Y"
+                        },
+                        {
+                            "CustomPropertyOptionId": 4,
+                            "Value": "N"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 7,
+                    "SystemDataType": "System.String"
+                },
+                "IntegerListValue": null,
+                "IntegerValue": null,
+                "PropertyNumber": 7,
+                "StringValue": "8341"
+            },
+            {
+                "BooleanValue": null,
+                "DateTimeValue": null,
+                "DecimalValue": null,
+                "Definition": {
+                    "ArtifactTypeId": 2,
+                    "CustomList": null,
+                    "CustomPropertyFieldName": "Custom_08",
+                    "CustomPropertyId": 125,
+                    "CustomPropertyTypeId": 1,
+                    "CustomPropertyTypeName": "Text",
+                    "IsDeleted": false,
+                    "Name": "dev_requirementId",
+                    "Options": [
+                        {
+                            "CustomPropertyOptionId": 1,
+                            "Value": "Y"
+                        },
+                        {
+                            "CustomPropertyOptionId": 4,
+                            "Value": "N"
+                        }
+                    ],
+                    "ProjectTemplateId": 8,
+                    "PropertyNumber": 8,
+                    "SystemDataType": "System.String"
+                },
+                "IntegerListValue": null,
+                "IntegerValue": null,
+                "PropertyNumber": 8,
+                "StringValue": "4565345"
+            }
+        ],
+        "description": null,
+        "momentId_Agility": 16817,
+        "name": "New AI Story To Process",
+        "ownerName": null,
+        "projectName": "Sandbox - Claims Unit and Integration",
+        "requirementId": "4565345",
+        "statusId": 1,
+        "storyId": "8341",
+        "tags": null,
+        "testCaseId": 1813,
+        "testCaseId_Agility": 8342
     },
     "1815": {
         "00_info": "!!!Test Case!!!",
@@ -640,6 +1258,17 @@
         "testRunId": 2180,
         "testRunTypeId": 1
     },
+    "2194": {
+        "00_info": "!!!Test Run!!!",
+        "artifactTypeId": 5,
+        "customProperties": [],
+        "executionStatusId": 2,
+        "projectId": 28,
+        "releaseId": 185,
+        "testCaseId": 1599,
+        "testRunId": 2194,
+        "testRunTypeId": 1
+    },
     "2385": {
         "00_info": "!!!Test Run!!!",
         "artifactTypeId": 5,
@@ -693,6 +1322,28 @@
         "releaseId": 185,
         "testCaseId": 1489,
         "testRunId": 2612,
+        "testRunTypeId": 1
+    },
+    "2642": {
+        "00_info": "!!!Test Run!!!",
+        "artifactTypeId": 5,
+        "customProperties": [],
+        "executionStatusId": 1,
+        "projectId": 28,
+        "releaseId": 185,
+        "testCaseId": 1813,
+        "testRunId": 2642,
+        "testRunTypeId": 1
+    },
+    "2643": {
+        "00_info": "!!!Test Run!!!",
+        "artifactTypeId": 5,
+        "customProperties": [],
+        "executionStatusId": 2,
+        "projectId": 28,
+        "releaseId": 185,
+        "testCaseId": 1813,
+        "testRunId": 2643,
         "testRunTypeId": 1
     }
 }
