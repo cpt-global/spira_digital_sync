@@ -27,7 +27,7 @@ spira:
   scope:
     project_scope: [28]
     requirement_type: "User Story"
-    test_type: "manual"
+    test_type: "Functional"
 digital:
   proto: https
   host: www16.v1host.com

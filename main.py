@@ -717,12 +717,15 @@ else:
 # output - rt_story_status
 # - Flatten Test run results to single value
 
+print("\n\n##########################################")
+print("Story Test Run Builder")
+print("##########################################")
 rt_story_status = {}
 for tcId, tcDic in reversed(list(rt_ai_model.items())):
     testcaseId_ai = tcDic.get("testcaseId_id")
-    print("\nINF: Test Id Agility", testcaseId_ai)
+    print("INF: 1. Test Id Agility", testcaseId_ai)
     storyId_ai = tcDic.get("storyId_ai")
-    print("INF: Story Id", storyId_ai)
+    print("INF: 2. Story Id", storyId_ai)
 
     tc_response = ai_query_storylevel_testcase(tc_id=testcaseId_ai)
 
@@ -732,6 +735,7 @@ for tcId, tcDic in reversed(list(rt_ai_model.items())):
     if rt_story_status.get(int(storyId_ai)) is None:
         # Story has no test history
         rt_story_status[int(storyId_ai)] = {
+            "none": 0,
             "passed": 0,
             "failed": 0
         }
@@ -742,8 +746,7 @@ for tcId, tcDic in reversed(list(rt_ai_model.items())):
         rt_story_status[int(storyId_ai)]["passed"] += 1
     elif tc_execution_status_ai is None:
         # Happens when TC has no history
-        rt_story_status[int(storyId_ai)]["failed"] = 0
-        rt_story_status[int(storyId_ai)]["passed"] = 0
+        rt_story_status[int(storyId_ai)]["none"] += 1
     else:
         exit("ERR: Unknown test execution status found (", tc_execution_status_ai, ")")
         # exit("ERR: Unknown test execution status")
@@ -752,7 +755,9 @@ pprint.pprint(rt_story_status)
 # For each Story update!!!
 
 
-print("\n\nINF: Update Story Status/Description")
+print("\n\n##########################################")
+print("INF: Update Story Status/Description")
+print("##########################################")
 for storyId_ai, storyId_ai_agg_test_status in rt_story_status.items():
     print("INF: Story Id", storyId_ai)
 
@@ -782,15 +787,27 @@ for storyId_ai, storyId_ai_agg_test_status in rt_story_status.items():
     new_desc += "Tests Failed: " + str(storyId_ai_agg_test_status["failed"])
     new_desc += "&lt;br&gt;"
 
-    # Failed
-    if storyId_ai_agg_test_status["passed"] > 0:
+    # Logic Filter: Story Resolution
+    if storyId_ai_agg_test_status["passed"] > 0 and storyId_ai_agg_test_status["failed"] == 0:
         rt_status = cfg["digital"]["story"]["status"]["done"]
+        new_desc += "Result: Clearly Passed"
         story_moment_id = ai_update_story(storyId=storyId_ai, status=rt_status, description=new_desc)["momentId"]
-    # All Passed
-    else:
+    elif storyId_ai_agg_test_status["passed"] == 0 and storyId_ai_agg_test_status["failed"] > 0:
         rt_status = cfg["digital"]["story"]["status"]["in_progress"]
+        new_desc += "Result: Clearly Failed"
         story_moment_id = ai_update_story(storyId=storyId_ai, status=rt_status, description=new_desc)["momentId"]
+    elif storyId_ai_agg_test_status["passed"] > 0 and storyId_ai_agg_test_status["failed"] > 0:
+        rt_status = cfg["digital"]["story"]["status"]["in_progress"]
+        new_desc += "Result: Ambiguous, Multiple Passed/Failed Results"
+        story_moment_id = ai_update_story(storyId=storyId_ai, status=rt_status, description=new_desc)["momentId"]
+    elif storyId_ai_agg_test_status["none"] > 0:
+        story_moment_id=0
+        # No Test Runs associated with Testcase
+        new_desc += "Result: Clearly Not Active, No Testcase Runs/Results"
+        print("\nINF: ", new_desc)
 
-    print("\nINF: Story(Done) Moment Id", story_moment_id)
+    print("\nINF: Story Moment Id", story_moment_id)
+
+# return storyId_ai_agg_test_status
 
 # scheduler.start()

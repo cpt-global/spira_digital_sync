@@ -1,10 +1,11 @@
 apscheduler
 ssl
-json
+# json
 requests
-collections
-operator
-pprint
-types
+# collections
+# operator
+# pprint
+# types
 simplejson
-yaml
+# yaml
+behave

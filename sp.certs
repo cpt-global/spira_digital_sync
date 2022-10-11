@@ -1,0 +1,125 @@
+CONNECTED(00000003)
+---
+Certificate chain
+ 0 s:C = US, ST = Maryland, L = Silver Spring, O = Inflectra Corporation, CN = *.inflectra.com
+   i:C = US, ST = Arizona, L = Scottsdale, O = "GoDaddy.com, Inc.", OU = http://certs.godaddy.com/repository/, CN = Go Daddy Secure Certificate Authority - G2
+-----BEGIN CERTIFICATE-----
+MIIG9TCCBd2gAwIBAgIIPoTACde38pEwDQYJKoZIhvcNAQELBQAwgbQxCzAJBgNV
+BAYTAlVTMRAwDgYDVQQIEwdBcml6b25hMRMwEQYDVQQHEwpTY290dHNkYWxlMRow
+GAYDVQQKExFHb0RhZGR5LmNvbSwgSW5jLjEtMCsGA1UECxMkaHR0cDovL2NlcnRz
+LmdvZGFkZHkuY29tL3JlcG9zaXRvcnkvMTMwMQYDVQQDEypHbyBEYWRkeSBTZWN1
+cmUgQ2VydGlmaWNhdGUgQXV0aG9yaXR5IC0gRzIwHhcNMjExMTIzMTk1MDAzWhcN
+MjIxMjI1MTk1MDAzWjByMQswCQYDVQQGEwJVUzERMA8GA1UECBMITWFyeWxhbmQx
+FjAUBgNVBAcTDVNpbHZlciBTcHJpbmcxHjAcBgNVBAoTFUluZmxlY3RyYSBDb3Jw
+b3JhdGlvbjEYMBYGA1UEAwwPKi5pbmZsZWN0cmEuY29tMIIBIjANBgkqhkiG9w0B
+AQEFAAOCAQ8AMIIBCgKCAQEAmQHtjruYi0/YZz83vXR+KFDUCZb9N0/mgsydA9ME
+ihXOGqdN+TfJ5ydc2yRZE5MPZMImIQyzbzQJcRD+SgIdPZF3Jwt7kVrCF8cYNFAd
+3NkqLfdv3vLml7IPsXIXmZpihAlTUbOUlumt1PZP9MGMc5cMJbqTU+CLJaOzeA2+
+ipODHPu0GsX9NIN3F7TV7eXFbaL1TOMknjb8xn1cY157PAKJ1jwwJbIAy7RUS8s1
+NBuK/7P+ZMwCXZi8HkBWadL1ogmcH4fLWHh4ZSHFseu+Nsf6Gm1C7Lq7+Q4/CBXF
+I4fdwIczXpSO81byrFxLnsPjUo5RD+tSrhDdpK5Wh/KWKQIDAQABo4IDSjCCA0Yw
+DAYDVR0TAQH/BAIwADApBgNVHSUEIjAgBggrBgEFBQcDAQYIKwYBBQUHAwIGCmCG
+SAGG+E0BAgMwDgYDVR0PAQH/BAQDAgWgMDYGA1UdHwQvMC0wK6ApoCeGJWh0dHA6
+Ly9jcmwuZ29kYWRkeS5jb20vZ2RpZzJzMi0yNS5jcmwwXQYDVR0gBFYwVDBIBgtg
+hkgBhv1tAQcXAjA5MDcGCCsGAQUFBwIBFitodHRwOi8vY2VydGlmaWNhdGVzLmdv
+ZGFkZHkuY29tL3JlcG9zaXRvcnkvMAgGBmeBDAECAjB2BggrBgEFBQcBAQRqMGgw
+JAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmdvZGFkZHkuY29tLzBABggrBgEFBQcw
+AoY0aHR0cDovL2NlcnRpZmljYXRlcy5nb2RhZGR5LmNvbS9yZXBvc2l0b3J5L2dk
+aWcyLmNydDAfBgNVHSMEGDAWgBRAwr0njsw0gzCiM9f7bLPwtCyAzjApBgNVHREE
+IjAggg8qLmluZmxlY3RyYS5jb22CDWluZmxlY3RyYS5jb20wHQYDVR0OBBYEFBoh
+37jNcB4Hn2zM0dzTwTbPPOQoMIIBfwYKKwYBBAHWeQIEAgSCAW8EggFrAWkAdwAp
+eb7wnjk5IfBWc59jpXflvld9nGAK+PlNXSZcJV3HhAAAAX1OXJkZAAAEAwBIMEYC
+IQCLu1HyGyWaTHFHUG2IQYEpEIO6tf8P1Wr3V+r2Nz2avAIhAOgQhmlZZtgWgytE
+i+Kyozk4Mjs4GHXc7b0xDKyFL6d+AHUAQcjKsd8iRkoQxqE6CUKHXk4xixsD6+tL
+x2jwkGKWBvYAAAF9TlyaCwAABAMARjBEAiAjj61jcHtGG1yGpO6wZzpNhXqp/4Ek
+VIWSHhCfUYmfyQIgN1UScZDRZ02RznOEbD5qi3q/CrtSpmxcldPtYoZKddQAdwDf
+pV6raIJPH2yt7rhfTj5a6s2iEqRqXo47EsAgRFwqcwAAAX1OXJrtAAAEAwBIMEYC
+IQDt1A9XTSQRabztJZK6+T0jD8+Coi8MBRJlQkn4gcGLhgIhALxAsLzasL/P7cqw
+7f+7YKs3NCWs7LYRAwBjId0zkQ7jMA0GCSqGSIb3DQEBCwUAA4IBAQCPRwkGSpCr
+gp2lq0Obkslu24RTfM22ZFob6Dzrq/OXF7jObuEFNdBBQyzE1asa8Lnw4hTHdMI4
+V0eg1NFH61U4ch3DRVT/Am21dGK2J7dQqph8WEdHixkLy2hpdpdEQL226kfHRhxN
+D9Jwp2JbJt67mOW0gL5U+S6NBMGXLL8yZcH0LfXEhbH2+PoDHWfC8j/R/VBedsVC
+3Lsk3YapMGNGLJTDKvFM5lRQJ++coFJ2Jldmvl1z0xOR/sy1jQdnZJmR6f/s7Dar
+AeIyLRhutfxs3jkVBl2TClTIKssUyEdvNsha/D54Gx7/aFbyZXgcSYJXp/c2o71E
+9X8DVKYK33ro
+-----END CERTIFICATE-----
+ 1 s:C = US, ST = Arizona, L = Scottsdale, O = "GoDaddy.com, Inc.", OU = http://certs.godaddy.com/repository/, CN = Go Daddy Secure Certificate Authority - G2
+   i:C = US, ST = Arizona, L = Scottsdale, O = "GoDaddy.com, Inc.", CN = Go Daddy Root Certificate Authority - G2
+-----BEGIN CERTIFICATE-----
+MIIE0DCCA7igAwIBAgIBBzANBgkqhkiG9w0BAQsFADCBgzELMAkGA1UEBhMCVVMx
+EDAOBgNVBAgTB0FyaXpvbmExEzARBgNVBAcTClNjb3R0c2RhbGUxGjAYBgNVBAoT
+EUdvRGFkZHkuY29tLCBJbmMuMTEwLwYDVQQDEyhHbyBEYWRkeSBSb290IENlcnRp
+ZmljYXRlIEF1dGhvcml0eSAtIEcyMB4XDTExMDUwMzA3MDAwMFoXDTMxMDUwMzA3
+MDAwMFowgbQxCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdBcml6b25hMRMwEQYDVQQH
+EwpTY290dHNkYWxlMRowGAYDVQQKExFHb0RhZGR5LmNvbSwgSW5jLjEtMCsGA1UE
+CxMkaHR0cDovL2NlcnRzLmdvZGFkZHkuY29tL3JlcG9zaXRvcnkvMTMwMQYDVQQD
+EypHbyBEYWRkeSBTZWN1cmUgQ2VydGlmaWNhdGUgQXV0aG9yaXR5IC0gRzIwggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC54MsQ1K92vdSTYuswZLiBCGzD
+BNliF44v/z5lz4/OYuY8UhzaFkVLVat4a2ODYpDOD2lsmcgaFItMzEUz6ojcnqOv
+K/6AYZ15V8TPLvQ/MDxdR/yaFrzDN5ZBUY4RS1T4KL7QjL7wMDge87Am+GZHY23e
+cSZHjzhHU9FGHbTj3ADqRay9vHHZqm8A29vNMDp5T19MR/gd71vCxJ1gO7GyQ5HY
+pDNO6rPWJ0+tJYqlxvTV0KaudAVkV4i1RFXULSo6Pvi4vekyCgKUZMQWOlDxSq7n
+eTOvDCAHf+jfBDnCaQJsY1L6d8EbyHSHyLmTGFBUNUtpTrw700kuH9zB0lL7AgMB
+AAGjggEaMIIBFjAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBBjAdBgNV
+HQ4EFgQUQMK9J47MNIMwojPX+2yz8LQsgM4wHwYDVR0jBBgwFoAUOpqFBxBnKLbv
+9r0FQW4gwZTaD94wNAYIKwYBBQUHAQEEKDAmMCQGCCsGAQUFBzABhhhodHRwOi8v
+b2NzcC5nb2RhZGR5LmNvbS8wNQYDVR0fBC4wLDAqoCigJoYkaHR0cDovL2NybC5n
+b2RhZGR5LmNvbS9nZHJvb3QtZzIuY3JsMEYGA1UdIAQ/MD0wOwYEVR0gADAzMDEG
+CCsGAQUFBwIBFiVodHRwczovL2NlcnRzLmdvZGFkZHkuY29tL3JlcG9zaXRvcnkv
+MA0GCSqGSIb3DQEBCwUAA4IBAQAIfmyTEMg4uJapkEv/oV9PBO9sPpyIBslQj6Zz
+91cxG7685C/b+LrTW+C05+Z5Yg4MotdqY3MxtfWoSKQ7CC2iXZDXtHwlTxFWMMS2
+RJ17LJ3lXubvDGGqv+QqG+6EnriDfcFDzkSnE3ANkR/0yBOtg2DZ2HKocyQetawi
+DsoXiWJYRBuriSUBAA/NxBti21G00w9RKpv0vHP8ds42pM3Z2Czqrpv1KrKQ0U11
+GIo/ikGQI31bS/6kA1ibRrLDYGCD+H1QQc7CoZDDu+8CL9IVVO5EFdkKrqeKM+2x
+LXY2JtwE65/3YR8V3Idv7kaWKK2hJn0KCacuBKONvPi8BDAB
+-----END CERTIFICATE-----
+---
+Server certificate
+subject=C = US, ST = Maryland, L = Silver Spring, O = Inflectra Corporation, CN = *.inflectra.com
+
+issuer=C = US, ST = Arizona, L = Scottsdale, O = "GoDaddy.com, Inc.", OU = http://certs.godaddy.com/repository/, CN = Go Daddy Secure Certificate Authority - G2
+
+---
+No client certificate CA names sent
+Peer signing digest: SHA512
+Peer signature type: RSA
+Server Temp Key: ECDH, P-256, 256 bits
+---
+SSL handshake has read 3710 bytes and written 445 bytes
+Verification: OK
+---
+New, TLSv1.2, Cipher is ECDHE-RSA-AES128-GCM-SHA256
+Server public key is 2048 bit
+Secure Renegotiation IS supported
+Compression: NONE
+Expansion: NONE
+No ALPN negotiated
+SSL-Session:
+    Protocol  : TLSv1.2
+    Cipher    : ECDHE-RSA-AES128-GCM-SHA256
+    Session-ID: 5B5D19BFF0304277F9B4E4B6E18A728F7DA86D4C7ED00FABAA14468E74090BD2
+    Session-ID-ctx: 
+    Master-Key: 851681122A9304D7B637862BBCD2FA1D807C432035E8CA31C340925C0A5343F361BA64918A3B18E539AA6A293686A375
+    PSK identity: None
+    PSK identity hint: None
+    SRP username: None
+    TLS session ticket lifetime hint: 43200 (seconds)
+    TLS session ticket:
+    0000 - 24 07 ce c3 d3 3f 5f fd-0c 92 7f 9b 28 3b 6f b6   $....?_.....(;o.
+    0010 - d7 97 89 1a 54 52 12 71-c6 7c c2 c2 4c 37 63 c2   ....TR.q.|..L7c.
+    0020 - e2 62 c9 ed ad 47 a8 77-e5 0b a8 7a 67 25 af 05   .b...G.w...zg%..
+    0030 - 58 09 26 b7 a2 fb 4e 8d-8e 4d b5 a3 3b cf e8 a0   X.&...N..M..;...
+    0040 - cc 3c fc f7 96 3d 22 3b-a0 13 16 ea d3 53 aa d2   .<...=";.....S..
+    0050 - 3e 38 fc 7e ef ff 8e 82-11 c7 28 94 de 4a 29 08   >8.~......(..J).
+    0060 - 86 0d 40 0e e7 83 85 12-11 be 5c e4 6f a8 3b af   ..@.......\.o.;.
+    0070 - 91 61 01 d2 1b 8f 5c c6-4e a6 d1 f4 53 3a 15 dc   .a....\.N...S:..
+    0080 - e6 56 c2 9b d5 03 d3 8a-3b 73 8b 5b b4 7b 98 d9   .V......;s.[.{..
+    0090 - 36 d8 65 fe 29 9e ab f3-f9 31 07 17 b2 58 53 c7   6.e.)....1...XS.
+    00a0 - 30 ee b6 3c cf a2 10 de-f7 a5 2a 64 ee f5 e3 6f   0..<......*d...o
+    00b0 - c6 c0 36 78 a7 96 b6 96-ed ee 94 d3 09 71 42 ef   ..6x.........qB.
+
+    Start Time: 1663579072
+    Timeout   : 7200 (sec)
+    Verify return code: 0 (ok)
+    Extended master secret: no
+---
